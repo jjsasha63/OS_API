@@ -3,8 +3,8 @@ package com.red.os_api.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "orders_products")
-public class OrdersProducts {
+@Table(name = "order_product")
+public class OrderProduct {
 
     @EmbeddedId
     OrderProductKey orderProductKey;
@@ -12,22 +12,22 @@ public class OrdersProducts {
     @ManyToOne
     @MapsId("order_id")
     @JoinColumn(name = "order_id")
-    Orders orders;
+    Order order;
 
     @ManyToOne
     @MapsId("product_id")
     @JoinColumn(name = "product_id")
-    Products products;
+    Product product;
 
     @Column(name = "quantity",nullable = false)
     int quantity;
 
-    public OrdersProducts(OrderProductKey orderProductKey, int quantity) {
+    public OrderProduct(OrderProductKey orderProductKey, int quantity) {
         this.orderProductKey = orderProductKey;
         this.quantity = quantity;
     }
 
-    public OrdersProducts(){}
+    public OrderProduct(){}
 
     public OrderProductKey getOrderProductKey() {
         return orderProductKey;
@@ -37,20 +37,20 @@ public class OrdersProducts {
         this.orderProductKey = orderProductKey;
     }
 
-    public Orders getOrders() {
-        return orders;
+    public Order getOrders() {
+        return order;
     }
 
-    public void setOrders(Orders orders) {
-        this.orders = orders;
+    public void setOrders(Order order) {
+        this.order = order;
     }
 
-    public Products getProducts() {
-        return products;
+    public Product getProducts() {
+        return product;
     }
 
-    public void setProducts(Products products) {
-        this.products = products;
+    public void setProducts(Product product) {
+        this.product = product;
     }
 
     public int getQuantity() {
@@ -65,8 +65,8 @@ public class OrdersProducts {
     public String toString() {
         return "OrdersProducts{" +
                 "orderProductKey=" + orderProductKey +
-                ", orders=" + orders +
-                ", products=" + products +
+                ", orders=" + order +
+                ", products=" + product +
                 ", quantity=" + quantity +
                 '}';
     }

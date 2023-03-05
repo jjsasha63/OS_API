@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
-public class Reviews {
+@Table(name = "review")
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -14,11 +14,11 @@ public class Reviews {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    Customers customers;
+    Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    Products products;
+    Product product;
 
     @Enumerated(EnumType.STRING)
     private Grade grade;
@@ -31,9 +31,9 @@ public class Reviews {
     @Column(name = "review_date",nullable = false)
     LocalDateTime review_date;
 
-    public Reviews(){}
+    public Review(){}
 
-    public Reviews(int review_id, Grade grade, String review_text, LocalDateTime review_date) {
+    public Review(int review_id, Grade grade, String review_text, LocalDateTime review_date) {
         this.review_id = review_id;
         this.grade = grade;
         this.review_text = review_text;
@@ -48,20 +48,20 @@ public class Reviews {
         this.review_id = review_id;
     }
 
-    public Customers getCustomers() {
-        return customers;
+    public Customer getCustomers() {
+        return customer;
     }
 
-    public void setCustomers(Customers customers) {
-        this.customers = customers;
+    public void setCustomers(Customer customer) {
+        this.customer = customer;
     }
 
-    public Products getProducts() {
-        return products;
+    public Product getProducts() {
+        return product;
     }
 
-    public void setProducts(Products products) {
-        this.products = products;
+    public void setProducts(Product product) {
+        this.product = product;
     }
 
     public Grade getGrade() {
@@ -92,8 +92,8 @@ public class Reviews {
     public String toString() {
         return "Reviews{" +
                 "review_id=" + review_id +
-                ", customers=" + customers +
-                ", products=" + products +
+                ", customers=" + customer +
+                ", products=" + product +
                 ", grade=" + grade +
                 ", review_text='" + review_text + '\'' +
                 ", review_date=" + review_date +

@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "products")
-public class Products {
+@Table(name = "product")
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,9 +29,9 @@ public class Products {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    Categories categories;
+    Category category;
 
-    public Products(int product_id, String product_name, BigDecimal price, String description, String picture, int quantity) {
+    public Product(int product_id, String product_name, BigDecimal price, String description, String picture, int quantity) {
         this.product_id = product_id;
         this.product_name = product_name;
         this.price = price;
@@ -40,16 +40,16 @@ public class Products {
         this.quantity = quantity;
     }
 
-    public Products(){
+    public Product(){
 
     }
 
-    public Categories getCategories() {
-        return categories;
+    public Category getCategories() {
+        return category;
     }
 
-    public void setCategories(Categories categories) {
-        this.categories = categories;
+    public void setCategories(Category category) {
+        this.category = category;
     }
 
     public int getProduct_id() {
@@ -109,7 +109,7 @@ public class Products {
                 ", description='" + description + '\'' +
                 ", picture='" + picture + '\'' +
                 ", quantity=" + quantity +
-                ", categories=" + categories +
+                ", categories=" + category +
                 '}';
     }
 }

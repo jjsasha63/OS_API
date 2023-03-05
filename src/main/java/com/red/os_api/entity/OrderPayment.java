@@ -3,8 +3,8 @@ package com.red.os_api.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "orders_payments")
-public class OrdersPayments {
+@Table(name = "order_payment")
+public class OrderPayment {
 
     @EmbeddedId
     OrderPaymentKey orderPaymentKey;
@@ -12,7 +12,7 @@ public class OrdersPayments {
     @ManyToOne
     @MapsId("order_id")
     @JoinColumn(name = "order_id")
-    Orders orders;
+    Order order;
 
     @ManyToOne
     @MapsId("payment_method_id")
@@ -22,11 +22,11 @@ public class OrdersPayments {
     @Column(name = "payment_link",nullable = false)
     String payment_link;
 
-    public OrdersPayments(){
+    public OrderPayment(){
 
     }
 
-    public OrdersPayments(OrderPaymentKey orderPaymentKey, String payment_link) {
+    public OrderPayment(OrderPaymentKey orderPaymentKey, String payment_link) {
         this.orderPaymentKey = orderPaymentKey;
         this.payment_link = payment_link;
     }
@@ -39,12 +39,12 @@ public class OrdersPayments {
         this.orderPaymentKey = orderPaymentKey;
     }
 
-    public Orders getOrders() {
-        return orders;
+    public Order getOrders() {
+        return order;
     }
 
-    public void setOrders(Orders orders) {
-        this.orders = orders;
+    public void setOrders(Order order) {
+        this.order = order;
     }
 
     public PaymentMethods getPaymentMethods() {
@@ -67,7 +67,7 @@ public class OrdersPayments {
     public String toString() {
         return "OrdersPayments{" +
                 "orderPaymentKey=" + orderPaymentKey +
-                ", orders=" + orders +
+                ", orders=" + order +
                 ", paymentMethods=" + paymentMethods +
                 ", payment_link='" + payment_link + '\'' +
                 '}';

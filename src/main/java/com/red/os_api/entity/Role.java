@@ -2,11 +2,9 @@ package com.red.os_api.entity;
 
 import jakarta.persistence.*;
 
-import javax.management.relation.Role;
-
 @Entity
-@Table(name = "roles")
-public class Roles {
+@Table(name = "role")
+public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -18,13 +16,13 @@ public class Roles {
     @Column(name = "description")
     String description;
 
-    public Roles(int role_id, String name, String description) {
+    public Role(int role_id, String name, String description) {
         this.role_id = role_id;
         this.name = name;
         this.description = description;
     }
 
-    public Roles(){
+    public Role(){
 
     }
 

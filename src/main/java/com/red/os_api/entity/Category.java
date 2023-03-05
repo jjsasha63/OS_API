@@ -3,11 +3,11 @@ package com.red.os_api.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "categories")
-public class Categories {
+@Table(name = "category")
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    int category_id;
+    Integer category_id;
 
     @Column(name = "name",unique = true,nullable = false,length = 50)
     String name;
@@ -15,13 +15,13 @@ public class Categories {
     @Column(name = "description")
     String description;
 
-    public Categories(int category_id, String name, String description) {
+    public Category(int category_id, String name, String description) {
         this.category_id = category_id;
         this.name = name;
         this.description = description;
     }
 
-    public Categories(){
+    public Category(){
 
     }
 

@@ -3,12 +3,12 @@ package com.red.os_api.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "customers")
-public class Customers {
+@Table(name = "customer")
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    int customer_id;
+    Integer customer_id;
 
     @Column(name = "first_name", nullable = false,length = 50)
     String first_name;
@@ -73,10 +73,10 @@ public class Customers {
         this.billing_address = billing_address;
     }
 
-    public Customers(){
+    public Customer(){
 
     }
-    public Customers(int customer_id, String first_name, String second_name, String email, String shipping_address, String billing_address) {
+    public Customer(int customer_id, String first_name, String second_name, String email, String shipping_address, String billing_address) {
         this.customer_id = customer_id;
         this.first_name = first_name;
         this.second_name = second_name;

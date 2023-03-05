@@ -9,8 +9,8 @@ import java.io.Serializable;
 public class OrderPaymentKey implements Serializable {
 
     @Column(name = "order_id")
-    int order_id;
+    Integer order_id;
 
     @Column(name = "payment_method_id")
-    int payment_method_id;
+    Integer payment_method_id;
 }

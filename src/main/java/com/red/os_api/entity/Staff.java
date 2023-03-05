@@ -21,7 +21,7 @@ public class Staff {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
-    Roles roles;
+    Role role;
 
     public Staff(int staff_id, String name, String email, String job_title) {
         this.staff_id = staff_id;
@@ -66,12 +66,12 @@ public class Staff {
         this.job_title = job_title;
     }
 
-    public Roles getRoles() {
-        return roles;
+    public Role getRoles() {
+        return role;
     }
 
-    public void setRoles(Roles roles) {
-        this.roles = roles;
+    public void setRoles(Role role) {
+        this.role = role;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class Staff {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", job_title='" + job_title + '\'' +
-                ", roles=" + roles +
+                ", roles=" + role +
                 '}';
     }
 }

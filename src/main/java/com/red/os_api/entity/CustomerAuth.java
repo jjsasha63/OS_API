@@ -8,11 +8,11 @@ public class CustomerAuth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    int customer_auth_id;
+    Integer customer_auth_id;
 
     @OneToOne
     @JoinColumn(name = "customer_id")
-    Customers customers;
+    Customer customer;
 
     @Column(name = "username",nullable = false,unique = true,length = 50)
     String username;
@@ -38,12 +38,12 @@ public class CustomerAuth {
         this.customer_auth_id = customer_auth_id;
     }
 
-    public Customers getCustomers() {
-        return customers;
+    public Customer getCustomers() {
+        return customer;
     }
 
-    public void setCustomers(Customers customers) {
-        this.customers = customers;
+    public void setCustomers(Customer customer) {
+        this.customer = customer;
     }
 
     public String getUsername() {
@@ -67,7 +67,7 @@ public class CustomerAuth {
     toString() {
         return "CustomerAuth{" +
                 "customer_auth_id=" + customer_auth_id +
-                ", customers=" + customers +
+                ", customers=" + customer +
                 ", username='" + username + '\'' +
                 ", password_hash='" + password_hash + '\'' +
                 '}';

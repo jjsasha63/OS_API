@@ -5,16 +5,16 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "orders")
-public class Orders {
+@Table(name = "order")
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    int order_id;
+    Integer order_id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    private Customers customers;
+    private Customer customer;
 
     @Column(name = "order_date",nullable = false)
     LocalDateTime order_date;
@@ -22,10 +22,10 @@ public class Orders {
     @Column(name = "order_status",nullable = false,length = 50)
     String order_status;
 
-    public Orders(){
+    public Order(){
 
     }
-    public Orders(int order_id,LocalDateTime order_date, String order_status) {
+    public Order(int order_id, LocalDateTime order_date, String order_status) {
         this.order_id = order_id;
         this.order_date = order_date;
         this.order_status = order_status;
@@ -39,12 +39,12 @@ public class Orders {
         this.order_id = order_id;
     }
 
-    public Customers getCustomers() {
-        return customers;
+    public Customer getCustomers() {
+        return customer;
     }
 
-    public void setCustomers(Customers customers) {
-        this.customers = customers;
+    public void setCustomers(Customer customer) {
+        this.customer = customer;
     }
 
     public LocalDateTime getOrder_date() {
@@ -67,7 +67,7 @@ public class Orders {
     public String toString() {
         return "Orders{" +
                 "order_id=" + order_id +
-                ", customers=" + customers +
+                ", customers=" + customer +
                 ", order_date=" + order_date +
                 ", order_status='" + order_status + '\'' +
                 '}';

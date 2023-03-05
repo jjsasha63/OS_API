@@ -8,7 +8,7 @@ public class PaymentMethods {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    int payment_method_id;
+    Integer payment_method_id;
 
     @Column(name = "name", nullable = false, unique = true, length = 50)
     String name;
