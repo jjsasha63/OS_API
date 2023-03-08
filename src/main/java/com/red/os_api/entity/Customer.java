@@ -10,19 +10,20 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     Integer customer_id;
 
-    @Column(name = "first_name", nullable = false,length = 50)
+    @Column(name = "first_name", nullable = false, length = 50)
     String first_name;
 
-    @Column(name = "second_name",nullable = false,length = 50)
+    @Column(name = "second_name", nullable = false, length = 50)
     String second_name;
 
-    @Column(name = "email", nullable = false,unique = true,length = 50)
-    String email;
+    @OneToOne
+    @JoinColumn(name = "email")
+    Auth email;
 
     @Column(name = "shipping_address", length = 100)
     String shipping_address;
 
-    @Column(name = "billing_address",length = 100)
+    @Column(name = "billing_address", length = 100)
     String billing_address;
 
     public int getCustomer_id() {
@@ -49,13 +50,6 @@ public class Customer {
         this.second_name = second_name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getShipping_address() {
         return shipping_address;
@@ -73,27 +67,28 @@ public class Customer {
         this.billing_address = billing_address;
     }
 
-    public Customer(){
+    public Customer() {
 
     }
-    public Customer(int customer_id, String first_name, String second_name, String email, String shipping_address, String billing_address) {
+
+    public void setCustomer_id(Integer customer_id) {
+        this.customer_id = customer_id;
+    }
+
+    public Auth getEmail() {
+        return email;
+    }
+
+    public void setEmail(Auth email) {
+        this.email = email;
+    }
+
+    public Customer(Integer customer_id, String first_name, String second_name, Auth email, String shipping_address, String billing_address) {
         this.customer_id = customer_id;
         this.first_name = first_name;
         this.second_name = second_name;
         this.email = email;
         this.shipping_address = shipping_address;
         this.billing_address = billing_address;
-    }
-
-    @Override
-    public String toString() {
-        return "Customers{" +
-                "customer_id=" + customer_id +
-                ", first_name='" + first_name + '\'' +
-                ", second_name='" + second_name + '\'' +
-                ", email='" + email + '\'' +
-                ", shipping_address='" + shipping_address + '\'' +
-                ", billing_address='" + billing_address + '\'' +
-                '}';
     }
 }

@@ -41,8 +41,6 @@ public class OrderPaymentService implements AppService<OrderPayment, OrderPaymen
     public void update(OrderPaymentKey id, OrderPayment order) {
         OrderPayment orderNew = orderRep.findById(id).get();
         orderNew.setPayment_link(order.getPayment_link());
-        orderNew.setOrders(order.getOrders());
-        orderNew.setPaymentMethods(order.getPaymentMethods());
         orderRep.save(orderNew);
     }
 

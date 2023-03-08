@@ -42,8 +42,6 @@ public class OrderProductService implements AppService<OrderProduct, OrderProduc
     public void update(OrderProductKey id, OrderProduct order) {
         OrderProduct orderNew = orderRep.findById(id).get();
         orderNew.setQuantity(order.getQuantity());
-        orderNew.setOrders(order.getOrders());
-        orderNew.setProducts(order.getProducts());
         orderRep.save(orderNew);
     }
 

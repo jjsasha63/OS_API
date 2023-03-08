@@ -42,7 +42,6 @@ public class StaffService implements AppService<Staff, Integer> {
         staffNew.setName(staff.getName());
         staffNew.setEmail(staff.getEmail());
         staffNew.setJob_title(staff.getJob_title());
-        staffNew.setRoles(staff.getRoles());
         staffRep.save(staffNew);
     }
 

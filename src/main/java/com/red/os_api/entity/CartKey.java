@@ -6,20 +6,20 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class OrderProductKey implements Serializable {
+public class CartKey implements Serializable {
 
-    @Column(name = "order_id")
-    Integer order_id;
+    @Column(name = "customer_id")
+    Integer customer_id;
 
     @Column(name = "product_id")
     Integer product_id;
 
-    public OrderProductKey(Integer order_id, Integer product_id) {
-        this.order_id = order_id;
+    public CartKey(Integer customer_id, Integer product_id) {
+        this.customer_id = customer_id;
         this.product_id = product_id;
     }
 
-    public OrderProductKey() {
+    public CartKey() {
 
     }
 }

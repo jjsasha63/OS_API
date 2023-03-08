@@ -13,4 +13,14 @@ public class OrderPaymentKey implements Serializable {
 
     @Column(name = "payment_method_id")
     Integer payment_method_id;
+
+    public OrderPaymentKey(Integer order_id, Integer payment_method_id) {
+        this.order_id = order_id;
+        this.payment_method_id = payment_method_id;
+    }
+
+
+    public OrderPaymentKey() {
+
+    }
 }

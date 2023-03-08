@@ -11,17 +11,20 @@ CREATE TABLE IF NOT EXISTS Customer (
                                          second_name VARCHAR(50) NOT NULL,
                                          email VARCHAR(50) NOT NULL unique,
                                          shipping_address VARCHAR(100) ,
-                                         billing_address VARCHAR(100)
+                                         billing_address VARCHAR(100),
+                                         FOREIGN KEY (email) REFERENCES Auth (username) ON DELETE CASCADE
 );
 
 -- Create the Customer_Auth table
-CREATE TABLE IF NOT EXISTS Customer_Auth (
-                                             customer_auth_id INT AUTO_INCREMENT PRIMARY KEY,
-                                             customer_id INT NOT NULL,
+CREATE TABLE IF NOT EXISTS Auth (
+                                             auth_id INT AUTO_INCREMENT PRIMARY KEY,
                                              username VARCHAR(50) NOT NULL unique ,
-                                             password_hash VARCHAR(100) NOT NULL,
-                                             FOREIGN KEY (customer_id) REFERENCES Customer (customer_id) ON DELETE CASCADE
+                                             password VARCHAR(100) NOT NULL,
+                                             role_id INT NOT NULL,
+                                             FOREIGN KEY (role_id) REFERENCES Role (role_id) ON DELETE CASCADE
 );
+
+
 
 -- Create the Categories table
 CREATE TABLE IF NOT EXISTS Category (
@@ -71,18 +74,7 @@ CREATE TABLE IF NOT EXISTS Staff (
                                      staff_id INT AUTO_INCREMENT PRIMARY KEY,
                                      name VARCHAR(50) NOT NULL,
                                      email VARCHAR(50) NOT NULL unique ,
-                                     job_title VARCHAR(50) NOT NULL,
-                                     role_id INT NOT NULL,
-                                     FOREIGN KEY (role_id) REFERENCES Role(role_id) ON DELETE CASCADE
-);
-
--- Create the Staff_Auth table
-CREATE TABLE IF NOT EXISTS Staff_Auth (
-                                          staff_auth_id INT AUTO_INCREMENT PRIMARY KEY,
-                                          staff_id INT NOT NULL,
-                                          username VARCHAR(50) NOT NULL unique,
-                                          password_hash VARCHAR(100) NOT NULL,
-                                          FOREIGN KEY (staff_id) REFERENCES Staff(staff_id) ON DELETE CASCADE
+                                     job_title VARCHAR(50) NOT NULL
 );
 
 
@@ -95,7 +87,7 @@ CREATE TABLE IF NOT EXISTS Payment_Methods (
 );
 
 -- Create the Orders table
-CREATE TABLE `Order` (
+CREATE TABLE IF NOT EXISTS `Order` (
                         order_id INT AUTO_INCREMENT PRIMARY KEY,
                         customer_id INT NOT NULL,
                         order_date DATE NOT NULL,
@@ -103,7 +95,7 @@ CREATE TABLE `Order` (
                         CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES Customer (customer_id)
 );
 
-CREATE TABLE Order_Product (
+CREATE TABLE IF NOT EXISTS Order_Product (
                                 order_id INT NOT NULL,
                                 product_id INT NOT NULL,
                                 quantity INT NOT NULL,
@@ -116,11 +108,20 @@ CREATE TABLE Order_Product (
 );
 
 -- Create the Orders_Payments table
-CREATE TABLE Order_Payment (
+CREATE TABLE IF NOT EXISTS Order_Payment (
                                  order_id INT NOT NULL,
                                  payment_method_id INT NOT NULL,
                                  payment_link VARCHAR(255) NOT NULL,
                                  PRIMARY KEY (order_id, payment_method_id),
                                  FOREIGN KEY (order_id) REFERENCES `Order`(order_id) ON UPDATE CASCADE ON DELETE CASCADE,
                                  FOREIGN KEY (payment_method_id) REFERENCES Payment_Methods(payment_method_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Cart (
+                               customer_id INT NOT NULL,
+                               product_id INT NOT NULL,
+                               quantity int NOT NULL,
+                               PRIMARY KEY (customer_id,product_id),
+                               FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON UPDATE CASCADE ON DELETE CASCADE,
+                               FOREIGN KEY (product_id) REFERENCES Product(product_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
