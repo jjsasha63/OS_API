@@ -1,28 +1,43 @@
 package com.red.os_api.service;
 
-import com.red.os_api.entity.Auth;
-import com.red.os_api.entity.AuthentificationRequest;
-import com.red.os_api.entity.AuthentificationResponse;
-import com.red.os_api.entity.RegisterRequest;
+import com.red.os_api.entity.*;
 import com.red.os_api.repository.UserRepository;
-import lombok.var;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository repository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
+    private final AuthenticationManager authenticationManager;
     public AuthentificationResponse register(RegisterRequest request) {
-       //TODO var user = .username(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
-             //   .roles("user").build();
-        repository.save(user);
+       var auth = Auth.builder().username(request.getEmail()).role(Role.USER).password(passwordEncoder.encode(request.getPassword()))
+                       .build();
+        var saved = repository.save(auth);
+       var token = jwtService.generateToken(auth);
+       return AuthentificationResponse.builder().token(token).build();
+
     }
 
-    public AuthentificationResponse authentificate(AuthentificationRequest request) {
+    public AuthentificationResponse authenticate(AuthentificationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var auth = repository.findByUsername(request.getEmail())
+                .orElseThrow();
+        var Token = jwtService.generateToken(auth);
+        return AuthentificationResponse.builder()
+                .token(Token)
+                .build();
+
     }
 }

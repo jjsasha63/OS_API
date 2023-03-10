@@ -17,7 +17,7 @@ public class CartService implements AppService<Cart, CartKey> {
     AppRepository<Cart, CartKey> cartRep;
 
     @Autowired
-    public void setCartRep(AppRepository<Cart, OrderProductKey> cartRep) {
+    public void setCartRep(AppRepository<Cart, CartKey> cartRep) {
         this.cartRep = cartRep;
     }
 
