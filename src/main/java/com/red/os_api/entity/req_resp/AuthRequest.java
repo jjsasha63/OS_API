@@ -1,17 +1,16 @@
-package com.red.os_api.entity;
+package com.red.os_api.entity.req_resp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthentificationResponse {
+@Data
+@Builder
+public class AuthRequest {
 
-    private String token;
-
-
+  private String email;
+  String password;
 }
