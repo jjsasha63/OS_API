@@ -14,20 +14,23 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "category")
-public class Category {
+@Table(name = "payment_method")
+public class PaymentMethod {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native",strategy = "native")
-    Integer category_id;
+    Integer payment_method_id;
 
-    @Column(name = "name",unique = true,nullable = false,length = 50)
+    @Column(name = "name", nullable = false, unique = true)
     String name;
 
     @Column(name = "description")
     String description;
 
     @Transient
-    List<Category> categories;
+    List<PaymentMethod> paymentMethods;
+
+
 
 }

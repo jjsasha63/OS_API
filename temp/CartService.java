@@ -1,7 +1,5 @@
 package com.red.os_api.service;
 
-import com.red.os_api.entity.Cart;
-import com.red.os_api.entity.CartKey;
 import com.red.os_api.entity.OrderProduct;
 import com.red.os_api.entity.OrderProductKey;
 import com.red.os_api.repository.AppRepository;

@@ -38,6 +38,7 @@ public class Auth implements UserDetails {
   @OneToMany(mappedBy = "auth")
   private List<Token> tokens;
 
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(role.name()));
@@ -72,4 +73,8 @@ public class Auth implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
+
+
+
 }
+

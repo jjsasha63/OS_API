@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -35,7 +34,7 @@ public class ProductService {
         return productCriteriaRepository.findByFilters(productPage,productSearchCriteria);
     }
 
-    public ResponseEntity<String> addProduct(Product product){
+    public ResponseEntity<Product> insertProduct(Product product){
         checkCategory(product.getCategory_name());
         product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
         try{
@@ -45,10 +44,10 @@ public class ProductService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.info("Product was successfully saved");
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(product,HttpStatus.OK);
     }
 
-    public ResponseEntity<String> addProduct(List<Product> products){
+    public ResponseEntity<List<Product>> insertProduct(List<Product> products){
         try{
             for(Product product: products) {
                 checkCategory(product.getCategory_name());
@@ -60,10 +59,10 @@ public class ProductService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.info("Products were successfully saved");
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(products,HttpStatus.OK);
     }
 
-   public Product getById(int id){
+   public ResponseEntity<Product> getProductById(int id){
        Product product = new Product();
        try{
            product = productRepository.findById(id).get();
@@ -71,16 +70,22 @@ public class ProductService {
            log.error(e.getMessage());
        }
        log.info("Product was successfully retrieved");
-       return product;
+       return new ResponseEntity<>(product,HttpStatus.OK);
    }
 
-   public void deleteById(int id){
+   public ResponseEntity<List<Product>> getAll(){
+        return new ResponseEntity<>(productRepository.findAll(),HttpStatus.OK);
+  }
+
+   public ResponseEntity<String> deleteCategoryById(int id){
        try{
            productRepository.deleteById(id);
        }catch (Exception e){
            log.error(e.getMessage());
+           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
        log.info("The product was successfully deleted");
+       return verifyProductId(id) ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(HttpStatus.OK);
    }
 
 //   public Product getByName(String name){
@@ -95,41 +100,41 @@ public class ProductService {
 //   }
 
 
-   public ResponseEntity<String> updateProduct(Product product){
-       checkCategory(product.getCategory_name());
-       product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
-       try{
-           productRepository.save(product);
-       }catch (IllegalArgumentException e){
-           log.error(e.getMessage());
-           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-       }
-       log.info("Product was successfully updated");
-       return new ResponseEntity<>(HttpStatus.OK);
-   }
-
-
-    public ResponseEntity<String> updateProduct(List<Product> productList){
-        try{
-            for(Product product: productList) {
-                checkCategory(product.getCategory_name());
-                product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
-                productRepository.save(product);
-            }
-        }catch (NoSuchElementException e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        log.info("Products were successfully updated");
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//   public ResponseEntity<Product> updateProduct(Product product){
+//       checkCategory(product.getCategory_name());
+//       product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
+//       try{
+//           productRepository.save(product);
+//       }catch (IllegalArgumentException e){
+//           log.error(e.getMessage());
+//           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//       }
+//       log.info("Product was successfully updated");
+//       return new ResponseEntity<>(product,HttpStatus.OK);
+//   }
+//
+//
+//    public ResponseEntity<List<Product>> updateProduct(List<Product> productList){
+//        try{
+//            for(Product product: productList) {
+//                checkCategory(product.getCategory_name());
+//                product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
+//                productRepository.save(product);
+//            }
+//        }catch (NoSuchElementException e){
+//            log.error(e.getMessage());
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        log.info("Products were successfully updated");
+//        return new ResponseEntity<>(productList,HttpStatus.OK);
+//    }
 
    private void checkCategory(String name){
        if(categoryRepository.findCategoryByName(name)==null)
            throw new NullPointerException("Given Category doesn't exist");
    }
 
-   public boolean verifyProductId(Integer id){
+   private boolean verifyProductId(Integer id){
         return productRepository.existsById(id);
    }
 }
