@@ -42,6 +42,12 @@ public class Product {
     @JoinColumn(name = "category_id")
     Category category;
 
+    @OneToMany(mappedBy = "product")
+    private List<Cart> carts;
+
+    @OneToMany(mappedBy = "product")
+    private List<Review> reviews;
+
     @Transient
     String category_name;
 

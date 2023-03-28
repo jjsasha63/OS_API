@@ -21,4 +21,7 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
 
   Optional<Token> findByToken(String token);
 
+  Boolean existsTokenByTokenAndRevokedAndExpired(String token,Boolean revoked, Boolean expired);
+
+
 }

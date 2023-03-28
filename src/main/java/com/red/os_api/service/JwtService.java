@@ -25,6 +25,7 @@ public class JwtService {
     return getClaim(token, Claims::getSubject);
   }
 
+
   private boolean isExpired(String token) {
     return getExpiration(token).before(new Date());
   }

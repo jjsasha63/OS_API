@@ -28,6 +28,9 @@ public class PaymentMethod {
     @Column(name = "description")
     String description;
 
+    @OneToMany(mappedBy = "preferred_payment_method")
+    private List<CustomerDetails> customerDetails;
+
     @Transient
     List<PaymentMethod> paymentMethods;
 

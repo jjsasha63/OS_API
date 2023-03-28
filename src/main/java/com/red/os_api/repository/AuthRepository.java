@@ -14,4 +14,6 @@ public interface AuthRepository extends JpaRepository<Auth, Integer> {
 
   Boolean existsByIdAndRoleIs(Integer id, Role role);
 
+
+
 }

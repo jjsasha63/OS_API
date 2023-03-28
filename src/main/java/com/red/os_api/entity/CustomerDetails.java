@@ -1,10 +1,12 @@
 package com.red.os_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
@@ -17,13 +19,15 @@ import java.util.List;
 @Table(name = "customer_details")
 public class CustomerDetails {
 
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer customer_id;
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GenericGenerator(name = "native",strategy = "native")
+    private Integer customer_id;
 
     @OneToOne
-    @PrimaryKeyJoinColumn(name = "customer_id",referencedColumnName = "id")
-    Auth auth_id;
+    @JoinColumn(name = "auth")
+    private Auth auth;
 
     @Column(name = "shipping_address")
     String shipping_address;
@@ -31,16 +35,16 @@ public class CustomerDetails {
     @Column(name = "billing_address")
     String billing_address;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_method_id")
-    PaymentMethod preferred_payment_method;
 
     @ManyToOne
-    @JoinColumn(name = "delivery_method_id")
+    @JoinColumn(name = "preferred_payment_method")
+    PaymentMethod preferred_payment_method;
+
+
+    @ManyToOne
+    @JoinColumn(name = "preferred_delivery_method")
     DeliveryMethod preferred_delivery_method;
 
 
-    @Transient
-    List<CustomerDetails> customersDetails;
 
 }

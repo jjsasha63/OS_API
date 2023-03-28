@@ -38,6 +38,14 @@ public class Auth implements UserDetails {
   @OneToMany(mappedBy = "auth")
   private List<Token> tokens;
 
+  @OneToOne(mappedBy = "auth")
+  private CustomerDetails customerDetails;
+
+  @OneToMany(mappedBy = "auth")
+  private List<Cart> carts;
+
+  @OneToMany(mappedBy = "auth")
+  private List<Review> reviews;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -28,6 +28,10 @@ public class DeliveryMethod {
     @Column(name = "description")
     String description;
 
+
+    @OneToMany(mappedBy = "preferred_delivery_method")
+    private List<CustomerDetails> customerDetails;
+
     @Transient
     List<DeliveryMethod> deliveryMethods;
 

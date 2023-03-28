@@ -24,6 +24,8 @@ public class CustomerDetailsRequest {
 
     Integer customer_id;
 
+    Integer auth_id;
+
     String shipping_address;
 
     String billing_address;
