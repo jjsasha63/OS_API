@@ -10,11 +10,18 @@ import com.red.os_api.repository.AuthRepository;
 import com.red.os_api.repository.TokenRepository;
 import com.red.os_api.entity.TokenType;
 import com.red.os_api.entity.Role;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +72,22 @@ public class AuthService {
             .revoked(false)
             .build();
     tokenRepository.save(token);
+  }
+
+  Integer getUserId(@NonNull HttpServletRequest request,
+                    @NonNull HttpServletResponse response,
+                    @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+      filterChain.doFilter(request, response);
+      throw new IllegalArgumentException();
+    }
+    if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(authHeader
+            .substring(7),false,false)) throw new NoSuchFieldException();
+
+    return authRepository.findByEmail(jwtService
+            .getUsername(authHeader
+                    .substring(7))).get().getId();
   }
 
 }

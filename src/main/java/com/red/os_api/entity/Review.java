@@ -20,10 +20,11 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native",strategy = "native")
-    private Integer review_id;
+    @Column(name = "review_id")
+    private Integer reviewId;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "auth_id")
     private Auth auth;
 
     @ManyToOne

@@ -34,9 +34,7 @@ public class CartService {
 
     private final ProductRepository productRepository;
 
-    private final JwtService jwtService;
-
-    private final TokenRepository tokenRepository;
+    private final AuthService authService;
 
 
 
@@ -76,7 +74,7 @@ public class CartService {
                                                         @NonNull FilterChain filterChain){
         CartKey cartKey = new CartKey();
         try{
-            cartKey.setAuth_id(getUserId(request,response,filterChain));
+            cartKey.setAuth_id(authService.getUserId(request,response,filterChain));
             cartKey.setProduct_id(id);
             cartRepository.deleteById(cartKey);
         } catch (Exception e){
@@ -94,7 +92,7 @@ public class CartService {
         CartKey cartKey = new CartKey();
         Cart cart = new Cart();
         try{
-            cartKey.setAuth_id(getUserId(request,response,filterChain));
+            cartKey.setAuth_id(authService.getUserId(request,response,filterChain));
             cartKey.setProduct_id(id);
             cart = cartRepository.getReferenceById(cartKey);
         } catch (Exception e){
@@ -112,7 +110,7 @@ public class CartService {
         List<Cart> cartList = new ArrayList<>();
         try{
 
-            cartList = cartRepository.findAllByAuth(authRepository.getReferenceById(getUserId(request,response,filterChain)));
+            cartList = cartRepository.findAllByAuth(authRepository.getReferenceById(authService.getUserId(request,response,filterChain)));
         } catch (Exception e){
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -126,7 +124,7 @@ public class CartService {
                                  @NonNull HttpServletResponse response,
                                  @NonNull FilterChain filterChain) throws NoSuchFieldException, ServletException, IOException {
         Cart cart = new Cart();
-        Integer auth_id = getUserId(request,response,filterChain);
+        Integer auth_id = authService.getUserId(request,response,filterChain);
         CartKey cartKey = new CartKey();
         if(!isProductExist(cartRequest.getProduct_id()))
             throw new NoSuchFieldException("Such product id or/and account id doesn't exist");
@@ -144,7 +142,7 @@ public class CartService {
                                  @NonNull HttpServletResponse response,
                                  @NonNull FilterChain filterChain) throws NoSuchFieldException, ServletException, IOException {
         List<Cart> carts = new ArrayList<>();
-        Integer auth_id = getUserId(request,response,filterChain);
+        Integer auth_id = authService.getUserId(request,response,filterChain);
         for(CartRequest cartRequest: cartRequestList){
         Cart cart = new Cart();
         CartKey cartKey = new CartKey();
@@ -187,21 +185,21 @@ public class CartService {
     }
 
 
-    private Integer getUserId(@NonNull HttpServletRequest request,
-                                 @NonNull HttpServletResponse response,
-                                 @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            throw new IllegalArgumentException();
-        }
-        if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(authHeader
-                .substring(7),false,false)) throw new NoSuchFieldException();
-
-        return authRepository.findByEmail(jwtService
-                .getUsername(authHeader
-                        .substring(7))).get().getId();
-    }
+//    private Integer getUserId(@NonNull HttpServletRequest request,
+//                                 @NonNull HttpServletResponse response,
+//                                 @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            throw new IllegalArgumentException();
+//        }
+//        if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(authHeader
+//                .substring(7),false,false)) throw new NoSuchFieldException();
+//
+//        return authRepository.findByEmail(jwtService
+//                .getUsername(authHeader
+//                        .substring(7))).get().getId();
+//    }
 
     private boolean isProductExist(int id){
         return productRepository.existsById(id);

@@ -70,7 +70,7 @@ public class CustomerController {
         return cartService.insertCartProduct(cartRequest.getCartRequestList(),true,request,response,filterChain);
     }
 
-    @PostMapping("/deleteById")
+    @PostMapping("/deleteCartById")
     public ResponseEntity<String> deleteFromCart(@RequestParam Integer id, @NonNull HttpServletRequest request,
                                                   @NonNull HttpServletResponse response,
                                                   @NonNull FilterChain filterChain){
