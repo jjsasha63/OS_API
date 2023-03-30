@@ -47,6 +47,9 @@ public class Auth implements UserDetails {
   @OneToMany(mappedBy = "auth")
   private List<Review> reviews;
 
+  @OneToMany(mappedBy = "auth")
+  private List<Order> orders;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(role.name()));

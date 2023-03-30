@@ -35,6 +35,9 @@ public class CustomerDetails {
     @Column(name = "billing_address")
     String billing_address;
 
+    @Column
+    Integer card_number;
+
 
     @ManyToOne
     @JoinColumn(name = "preferred_payment_method")

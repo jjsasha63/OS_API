@@ -151,7 +151,7 @@ public class CustomerDetailsService {
                 customerDetails.setPreferred_payment_method(paymentMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_payment_method()));
             if (customerDetailsRequest.getPreferred_delivery_method() != null)
                 customerDetails.setPreferred_delivery_method(deliveryMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_delivery_method()));
-
+            customerDetails.setCard_number(customerDetailsRequest.getCard_number());
         }
 
         return customerDetails;
@@ -168,6 +168,7 @@ public class CustomerDetailsService {
         customerDetailsResponse.setPreferred_payment_method(customerDetails.getPreferred_payment_method().getName());
         customerDetailsResponse.setAuth_id(customerDetails.getAuth().getId());
         customerDetailsResponse.setEmail(customerDetails.getAuth().getEmail());
+        customerDetailsResponse.setCard_number(customerDetails.getCard_number());
         return customerDetailsResponse;
     }
 
@@ -182,6 +183,7 @@ public class CustomerDetailsService {
             customerDetailsResponse.setPreferred_payment_method(customerDetails.getPreferred_payment_method().getName());
             customerDetailsResponse.setAuth_id(customerDetails.getAuth().getId());
             customerDetailsResponse.setEmail(customerDetails.getAuth().getEmail());
+            customerDetailsResponse.setCard_number(customerDetails.getCard_number());
             customerDetailsResponses.add(customerDetailsResponse);
         }
         return customerDetailsResponses;

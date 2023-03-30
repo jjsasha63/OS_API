@@ -22,5 +22,7 @@ public class CustomerDetailsResponse {
     String preferred_delivery_method;
     String email;
 
+    Integer card_number;
+
     Integer auth_id;
 }

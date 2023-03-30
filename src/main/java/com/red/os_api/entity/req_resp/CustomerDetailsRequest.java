@@ -30,12 +30,14 @@ public class CustomerDetailsRequest {
 
     String billing_address;
 
+    Integer card_number;
+
 
     Integer preferred_payment_method;
 
     Integer preferred_delivery_method;
 
 
-    List<CustomerDetailsRequest> customerDetails;
+    List<CustomerDetailsRequest> customerDetailsList;
 
 }

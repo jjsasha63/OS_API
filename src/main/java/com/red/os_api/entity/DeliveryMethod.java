@@ -32,6 +32,8 @@ public class DeliveryMethod {
     @OneToMany(mappedBy = "preferred_delivery_method")
     private List<CustomerDetails> customerDetails;
 
+    @OneToMany(mappedBy = "deliveryMethod")
+    private List<Order> orders;
     @Transient
     List<DeliveryMethod> deliveryMethods;
 

@@ -31,6 +31,9 @@ public class PaymentMethod {
     @OneToMany(mappedBy = "preferred_payment_method")
     private List<CustomerDetails> customerDetails;
 
+    @OneToMany(mappedBy = "paymentMethod")
+    private List<Order> orders;
+
     @Transient
     List<PaymentMethod> paymentMethods;
 

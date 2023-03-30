@@ -15,41 +15,41 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/store/api/account")
+@RequestMapping("/store/api/account/review")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/addReview-one")
+    @PostMapping("/add-one")
     public ResponseEntity<ReviewResponse> insertReview(@RequestBody ReviewRequest reviewRequest,@NonNull HttpServletRequest request,
                                                        @NonNull HttpServletResponse response,
                                                        @NonNull FilterChain filterChain){
         return reviewService.insertReview(reviewRequest,request,response,filterChain);
     }
 
-    @PostMapping("/addReview-many")
+    @PostMapping("/add-many")
     public ResponseEntity<List<ReviewResponse>> insertReviews(@RequestBody ReviewRequest reviewRequest, @NonNull HttpServletRequest request,
                                                              @NonNull HttpServletResponse response,
                                                              @NonNull FilterChain filterChain){
-        return reviewService.insertReview(reviewRequest.getReviewRequestList(),request,response,filterChain);
+        return reviewService.insertReview(reviewRequest.getReviewList(),request,response,filterChain);
     }
 
 
-    @PutMapping("/updateReview-one")
+    @PutMapping("/update-one")
     public ResponseEntity<ReviewResponse> updateReview(@RequestBody ReviewRequest reviewRequest,@NonNull HttpServletRequest request,
                                                        @NonNull HttpServletResponse response,
                                                        @NonNull FilterChain filterChain){
         return reviewService.insertReview(reviewRequest,request,response,filterChain);
     }
 
-    @PutMapping("/updateReview-many")
+    @PutMapping("/update-many")
     public ResponseEntity<List<ReviewResponse>> updateReviews(@RequestBody ReviewRequest reviewRequest, @NonNull HttpServletRequest request,
                                                               @NonNull HttpServletResponse response,
                                                               @NonNull FilterChain filterChain){
-        return reviewService.insertReview(reviewRequest.getReviewRequestList(),request,response,filterChain);
+        return reviewService.insertReview(reviewRequest.getReviewList(),request,response,filterChain);
     }
 
-    @PostMapping("/deleteReviewById")
+    @PostMapping("/deleteById")
     public ResponseEntity<String> deleteById(@RequestParam Integer id, @NonNull HttpServletRequest request,
                                                               @NonNull HttpServletResponse response,
                                                               @NonNull FilterChain filterChain){
@@ -57,14 +57,14 @@ public class ReviewController {
     }
 
 
-    @GetMapping("/getReviewById")
+    @GetMapping("/getById")
     public ResponseEntity<ReviewResponse> getById(@RequestParam Integer id, @NonNull HttpServletRequest request,
                                              @NonNull HttpServletResponse response,
                                              @NonNull FilterChain filterChain){
         return reviewService.getUserReviewById(id,request,response,filterChain);
     }
 
-    @GetMapping("/getReviewAll")
+    @GetMapping("/getAll")
     public ResponseEntity<List<ReviewResponse>> getAll( @NonNull HttpServletRequest request,
                                                   @NonNull HttpServletResponse response,
                                                   @NonNull FilterChain filterChain){

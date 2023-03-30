@@ -17,7 +17,7 @@ public class ReviewAdminController {
     private final ReviewService reviewService;
 
     @PostMapping("/deleteById")
-    public ResponseEntity<String> deleteById(Integer id){
+    public ResponseEntity<String> deleteById(@RequestParam Integer id){
         return reviewService.deleteByIdForAdmin(id);
     }
 

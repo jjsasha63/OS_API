@@ -40,7 +40,7 @@ public class CategoryAdminController {
         return categoryService.insertCategory(categories.getCategories());
     }
 
-    @PostMapping("/deleteBy")
+    @PostMapping("/deleteById")
     public ResponseEntity<String> deleteCategory(@Nullable @RequestParam(name = "id") Integer id, @Nullable @RequestParam(name = "name") String name){
         if(id != null) return categoryService.deleteCategoryById(id);
         else return categoryService.deleteCategoryByName(name);
@@ -62,14 +62,4 @@ public class CategoryAdminController {
     }
 
 
-
-    @GetMapping("/get")
-    public ResponseEntity<String> get(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,  @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(authHeader.substring(7),HttpStatus.OK);
-    }
 }

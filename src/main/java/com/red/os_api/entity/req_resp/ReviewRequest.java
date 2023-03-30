@@ -25,6 +25,6 @@ public class ReviewRequest {
 
     String review_text;
 
-    List<ReviewRequest> reviewRequestList;
+    List<ReviewRequest> reviewList;
 
 }

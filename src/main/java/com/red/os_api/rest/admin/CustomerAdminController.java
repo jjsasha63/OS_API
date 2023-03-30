@@ -28,7 +28,7 @@ public class CustomerAdminController {
 
     @PostMapping("/insert-many")
     public ResponseEntity<List<CustomerDetailsResponse>> putCustomersDetails(@RequestBody CustomerDetailsRequest customerDetailsRequests) throws NoSuchFieldException {
-        return customerDetailsService.insertCustomerDetails(customerDetailsRequests.getCustomerDetails());
+        return customerDetailsService.insertCustomerDetails(customerDetailsRequests.getCustomerDetailsList());
     }
 
     @PostMapping("/deleteById")
@@ -44,7 +44,7 @@ public class CustomerAdminController {
 
     @PutMapping("/update-many")
     public ResponseEntity<List<CustomerDetailsResponse>> updateCustomersDetails(@RequestBody CustomerDetailsRequest customerDetailsRequests) throws NoSuchFieldException {
-        return customerDetailsService.insertCustomerDetails(customerDetailsRequests.getCustomerDetails());
+        return customerDetailsService.insertCustomerDetails(customerDetailsRequests.getCustomerDetailsList());
     }
 
     @GetMapping("/getById")
