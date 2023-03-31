@@ -1,5 +1,6 @@
 package com.red.os_api.config;
 
+import com.red.os_api.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,19 @@ public class SecurityConfig {
         .authorizeHttpRequests()
         .requestMatchers("/store/api/auth/**", "/store/api/search/**")
           .permitAll()
+            .requestMatchers("/store/api/admin/category/**"
+            ,"/store/api/admin/customer/**"
+            ,"/store/api/admin/paymentMethod/**"
+            ,"/store/api/admin/deliveryMethod/**"
+            ,"/store/api/admin/orderProduct/**"
+            ,"/store/api/admin/product/**"
+            ,"/store/api/admin/**"
+            ,"/store/api/admin/review/**").hasRole(Role.ADMIN.name())
+            .requestMatchers("/store/api/master/**").hasRole(Role.MASTER.name())
+            .requestMatchers("/store/api/account/**"
+            ,"/store/api/account/cart/**"
+            ,"/store/api/account/order/**"
+            ,"/store/api/account/review/**").hasRole(Role.CUSTOMER.name())
         .anyRequest()
           .authenticated()
         .and()

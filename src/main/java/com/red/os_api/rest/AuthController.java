@@ -4,12 +4,19 @@ import com.red.os_api.entity.req_resp.AuthRequest;
 import com.red.os_api.entity.req_resp.AuthResponse;
 import com.red.os_api.service.AuthService;
 import com.red.os_api.entity.req_resp.RegisterRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/store/api/auth")
@@ -26,6 +33,19 @@ public class AuthController {
   public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) {
     return ResponseEntity.ok(authService.auth(authRequest));
   }
+
+  @PostMapping("/6D5A713374367739")
+  public ResponseEntity<AuthResponse> authMaster(@RequestBody AuthRequest authRequest) {
+    return ResponseEntity.ok(authService.authMaster(authRequest));
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<String> logout(@NonNull HttpServletRequest request,
+                                       @NonNull HttpServletResponse response,
+                                       @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+    return authService.logout(request,response,filterChain);
+  }
+
 
 
 }

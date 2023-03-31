@@ -56,6 +56,11 @@ public class AppConfig {
             .orElseThrow(() -> new UsernameNotFoundException("Username was not found"));
   }
 
+  @Bean
+  public String res(){
+    return "Status";
+  }
+
 
 
 }
