@@ -27,35 +27,41 @@ public class SecurityConfig {
     httpSecurity
         .csrf()
         .disable()
-        .authorizeHttpRequests()
-        .requestMatchers("/store/api/auth/**", "/store/api/search/**")
-          .permitAll()
-            .requestMatchers("/store/api/admin/category/**"
-            ,"/store/api/admin/customer/**"
-            ,"/store/api/admin/paymentMethod/**"
-            ,"/store/api/admin/deliveryMethod/**"
-            ,"/store/api/admin/orderProduct/**"
-            ,"/store/api/admin/product/**"
-            ,"/store/api/admin/**"
-            ,"/store/api/admin/review/**").hasRole(Role.ADMIN.name())
-            .requestMatchers("/store/api/master/**").hasRole(Role.MASTER.name())
-            .requestMatchers("/store/api/account/**"
-            ,"/store/api/account/cart/**"
-            ,"/store/api/account/order/**"
-            ,"/store/api/account/review/**").hasRole(Role.CUSTOMER.name())
-        .anyRequest()
-          .authenticated()
-        .and()
-          .sessionManagement()
-          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authenticationProvider(provider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        .logout()
-        .logoutUrl("/store/api/auth/logout")
-        .addLogoutHandler(logoutHandler)
-        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
-    ;
+        .authorizeHttpRequests((auth) -> {
+          try {
+            auth
+            .requestMatchers("/store/api/auth/**", "/store/api/search/**")
+              .permitAll()
+                .requestMatchers("/store/api/admin/category/**"
+                ,"/store/api/admin/customer/**"
+                ,"/store/api/admin/paymentMethod/**"
+                ,"/store/api/admin/deliveryMethod/**"
+                ,"/store/api/admin/orderProduct/**"
+                ,"/store/api/admin/product/**"
+                ,"/store/api/admin/**"
+                ,"/store/api/admin/review/**").hasAuthority("ADMIN")
+                .requestMatchers("/store/api/master/**").hasAuthority("MASTER")
+                .requestMatchers("/store/api/account/**"
+                ,"/store/api/account/cart/**"
+                ,"/store/api/account/order/**"
+                ,"/store/api/account/review/**").hasAuthority("CUSTOMER")
+           .anyRequest()
+              .authenticated()
+            .and()
+              .sessionManagement()
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authenticationProvider(provider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .logout()
+            .logoutUrl("/store/api/auth/logout")
+            .addLogoutHandler(logoutHandler)
+            .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+    );
 
     return httpSecurity.build();
   }

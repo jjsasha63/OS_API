@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/store/api/admin")
 @RequiredArgsConstructor
+@PreAuthorize(value = "ADMIN")
 public class TController {
 
     private final AuthService authService;
