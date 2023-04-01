@@ -30,7 +30,7 @@ public class CustomerDetailsRequest {
 
     String billing_address;
 
-    Integer card_number;
+    String card_number;
 
 
     Integer preferred_payment_method;

@@ -52,15 +52,11 @@ public class Auth implements UserDetails {
   @OneToMany(mappedBy = "auth")
   private List<Order> orders;
 
+
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    Set<Role> roles = role.getRoles();
-    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-    for (Role role : roles) {
-      authorities.add(new SimpleGrantedAuthority(role.name()));
-    }
-
-    return authorities;
+    return List.of(new SimpleGrantedAuthority(role.name()));
   }
 
   @Override

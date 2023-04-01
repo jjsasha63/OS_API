@@ -13,6 +13,10 @@ public class CustomerDetailsResponse {
 
     Integer customer_id;
 
+    String first_name;
+
+    String last_name;
+
     String shipping_address;
 
     String billing_address;
@@ -22,7 +26,7 @@ public class CustomerDetailsResponse {
     String preferred_delivery_method;
     String email;
 
-    Integer card_number;
+    String card_number;
 
     Integer auth_id;
 }

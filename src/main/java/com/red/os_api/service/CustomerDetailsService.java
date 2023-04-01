@@ -1,5 +1,6 @@
 package com.red.os_api.service;
 
+import com.red.os_api.encryption.AES;
 import com.red.os_api.entity.Auth;
 import com.red.os_api.entity.CustomerDetails;
 import com.red.os_api.entity.Role;
@@ -14,6 +15,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,11 +29,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerDetailsService {
 
+    @Value("${cid.customerDetails.key}")
+    private final String KEY;
+
+    @Value("${cid.auth.key}")
+    private final String SECRET;
+
     @Autowired
     private final CustomerDetailsRepository customerDetailsRepository;
 
     @Autowired
     private final AuthRepository authRepository;
+
+    private final AuthService authService;
 
     @Autowired
     private final DeliveryMethodRepository deliveryMethodRepository;
@@ -44,9 +54,27 @@ public class CustomerDetailsService {
     private final TokenRepository tokenRepository;
 
 
+
+
     public ResponseEntity<CustomerDetailsResponse> insertCustomerDetails(CustomerDetailsRequest customerDetailsRequest) {
         CustomerDetails customerDetails = new CustomerDetails();
         try {
+            customerDetails = convertToEntity(customerDetailsRequest);
+            customerDetailsRepository.save(customerDetails);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        log.info("Customer details were successfully inserted");
+        return new ResponseEntity<>(convertToResponse(customerDetails), HttpStatus.OK);
+    }
+
+    public ResponseEntity<CustomerDetailsResponse> updateCurrentCustomerDetails(CustomerDetailsRequest customerDetailsRequest,@NonNull HttpServletRequest request,
+                                                                                @NonNull HttpServletResponse response,
+                                                                                @NonNull FilterChain filterChain) {
+        CustomerDetails customerDetails = new CustomerDetails();
+        try {
+            if(customerDetailsRequest.getAuth_id()== null) customerDetailsRequest.setAuth_id(authService.getUserId(request,response,filterChain));
             customerDetails = convertToEntity(customerDetailsRequest);
             customerDetailsRepository.save(customerDetails);
         } catch (Exception e) {
@@ -144,14 +172,14 @@ public class CustomerDetailsService {
             if (customerDetailsRequest.getCustomer_id()!=null) customerDetails.setCustomer_id(customerDetailsRequest.getCustomer_id()   );
             customerDetails.setAuth(authRepository.findById(customerDetailsRequest.getAuth_id()).get());
             if (customerDetailsRequest.getShipping_address() != null)
-                customerDetails.setShipping_address(customerDetailsRequest.getShipping_address());
+                customerDetails.setShipping_address(AES.encrypt(customerDetailsRequest.getShipping_address(),KEY));
             if (customerDetailsRequest.getBilling_address() != null)
-                customerDetails.setBilling_address(customerDetailsRequest.getBilling_address());
+                customerDetails.setBilling_address(AES.encrypt(customerDetailsRequest.getBilling_address(),KEY));
             if (customerDetailsRequest.getPreferred_payment_method() != null)
                 customerDetails.setPreferred_payment_method(paymentMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_payment_method()));
             if (customerDetailsRequest.getPreferred_delivery_method() != null)
                 customerDetails.setPreferred_delivery_method(deliveryMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_delivery_method()));
-            customerDetails.setCard_number(customerDetailsRequest.getCard_number());
+           customerDetails.setCard_number(AES.encrypt(customerDetailsRequest.getCard_number().toString(),KEY));
         }
 
         return customerDetails;
@@ -162,13 +190,15 @@ public class CustomerDetailsService {
     private CustomerDetailsResponse convertToResponse(CustomerDetails customerDetails){
         CustomerDetailsResponse customerDetailsResponse = new CustomerDetailsResponse();
         customerDetailsResponse.setCustomer_id(customerDetails.getCustomer_id());
-        customerDetailsResponse.setBilling_address(customerDetails.getBilling_address());
-        customerDetailsResponse.setShipping_address(customerDetails.getShipping_address());
+        customerDetailsResponse.setBilling_address(AES.decrypt(customerDetails.getBilling_address(),KEY));
+        customerDetailsResponse.setShipping_address(AES.decrypt(customerDetails.getShipping_address(),KEY));
         customerDetailsResponse.setPreferred_delivery_method(customerDetails.getPreferred_delivery_method().getName());
         customerDetailsResponse.setPreferred_payment_method(customerDetails.getPreferred_payment_method().getName());
         customerDetailsResponse.setAuth_id(customerDetails.getAuth().getId());
         customerDetailsResponse.setEmail(customerDetails.getAuth().getEmail());
-        customerDetailsResponse.setCard_number(customerDetails.getCard_number());
+        customerDetailsResponse.setCard_number(AES.decrypt(customerDetails.getCard_number(),KEY));
+        customerDetailsResponse.setFirst_name(AES.decrypt(customerDetails.getAuth().getFirst_name(),SECRET));
+        customerDetailsResponse.setLast_name(AES.decrypt(customerDetails.getAuth().getLast_name(),SECRET));
         return customerDetailsResponse;
     }
 
@@ -177,13 +207,15 @@ public class CustomerDetailsService {
         for(CustomerDetails customerDetails: customersDetails) {
             CustomerDetailsResponse customerDetailsResponse = new CustomerDetailsResponse();
             customerDetailsResponse.setCustomer_id(customerDetails.getCustomer_id());
-            customerDetailsResponse.setBilling_address(customerDetails.getBilling_address());
-            customerDetailsResponse.setShipping_address(customerDetails.getShipping_address());
+            customerDetailsResponse.setBilling_address(AES.decrypt(customerDetails.getBilling_address(),KEY));
+            customerDetailsResponse.setShipping_address(AES.decrypt(customerDetails.getShipping_address(),KEY));
             customerDetailsResponse.setPreferred_delivery_method(customerDetails.getPreferred_delivery_method().getName());
             customerDetailsResponse.setPreferred_payment_method(customerDetails.getPreferred_payment_method().getName());
             customerDetailsResponse.setAuth_id(customerDetails.getAuth().getId());
             customerDetailsResponse.setEmail(customerDetails.getAuth().getEmail());
-            customerDetailsResponse.setCard_number(customerDetails.getCard_number());
+            customerDetailsResponse.setCard_number(AES.decrypt(customerDetails.getCard_number(),KEY));
+            customerDetailsResponse.setFirst_name(AES.decrypt(customerDetails.getAuth().getFirst_name(),SECRET));
+            customerDetailsResponse.setLast_name(AES.decrypt(customerDetails.getAuth().getLast_name(),SECRET));
             customerDetailsResponses.add(customerDetailsResponse);
         }
         return customerDetailsResponses;

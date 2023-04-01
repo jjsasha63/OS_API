@@ -5,9 +5,12 @@ import com.red.os_api.entity.CustomerDetails;
 import com.red.os_api.entity.req_resp.CustomerDetailsRequest;
 import com.red.os_api.entity.req_resp.CustomerDetailsResponse;
 import com.red.os_api.service.CustomerDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +59,7 @@ public class CustomerAdminController {
     public ResponseEntity<List<CustomerDetailsResponse>> getAllCustomerDetails(){
         return customerDetailsService.getAllCustomerDetails();
     }
+
 
 
 }

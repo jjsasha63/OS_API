@@ -9,6 +9,7 @@ import com.red.os_api.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,46 +89,7 @@ public class ProductService {
        return verifyProductId(id) ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(HttpStatus.OK);
    }
 
-//   public Product getByName(String name){
-//       Product product = new Product();
-//       try{
-//           product = productRepository.findByProduct_name(name).get();
-//       }catch (Exception e){
-//           log.error(e.getMessage());
-//       }
-//       log.info("Product was successfully retrieved");
-//       return product;
-//   }
 
-
-//   public ResponseEntity<Product> updateProduct(Product product){
-//       checkCategory(product.getCategory_name());
-//       product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
-//       try{
-//           productRepository.save(product);
-//       }catch (IllegalArgumentException e){
-//           log.error(e.getMessage());
-//           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//       }
-//       log.info("Product was successfully updated");
-//       return new ResponseEntity<>(product,HttpStatus.OK);
-//   }
-//
-//
-//    public ResponseEntity<List<Product>> updateProduct(List<Product> productList){
-//        try{
-//            for(Product product: productList) {
-//                checkCategory(product.getCategory_name());
-//                product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
-//                productRepository.save(product);
-//            }
-//        }catch (NoSuchElementException e){
-//            log.error(e.getMessage());
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        log.info("Products were successfully updated");
-//        return new ResponseEntity<>(productList,HttpStatus.OK);
-//    }
 
    private void checkCategory(String name){
        if(categoryRepository.findCategoryByName(name)==null)

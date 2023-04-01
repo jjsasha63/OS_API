@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/store/api/auth")
@@ -30,7 +31,7 @@ public class AuthController {
     return ResponseEntity.ok(authService.register(registerRequest));
   }
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) {
+  public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) throws AccessDeniedException {
     return ResponseEntity.ok(authService.auth(authRequest));
   }
 

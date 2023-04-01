@@ -36,7 +36,7 @@ public class CustomerDetails {
     String billing_address;
 
     @Column
-    Integer card_number;
+    String card_number;
 
 
     @ManyToOne

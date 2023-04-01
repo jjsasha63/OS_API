@@ -27,9 +27,9 @@ public class SecurityConfig {
     httpSecurity
         .csrf()
         .disable()
-        .authorizeHttpRequests((auth) -> {
-          try {
-            auth
+            .requiresChannel(channel ->
+                    channel.anyRequest().requiresSecure())
+        .authorizeHttpRequests()
             .requestMatchers("/store/api/auth/**", "/store/api/search/**")
               .permitAll()
                 .requestMatchers("/store/api/admin/category/**"
@@ -57,12 +57,6 @@ public class SecurityConfig {
             .logoutUrl("/store/api/auth/logout")
             .addLogoutHandler(logoutHandler)
             .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        }
-    );
-
     return httpSecurity.build();
   }
 }

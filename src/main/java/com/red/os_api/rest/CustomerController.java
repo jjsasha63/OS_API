@@ -35,6 +35,14 @@ public class CustomerController {
         return customerDetailsService.getCurrentUserDetails(request,response,filterChain);
     }
 
+    @PutMapping("/update-one")
+    public ResponseEntity<CustomerDetailsResponse> updateCustomerDetails(@RequestBody CustomerDetailsRequest customerDetailsRequest,@NonNull HttpServletRequest request,
+                                                                         @NonNull HttpServletResponse response,
+                                                                         @NonNull FilterChain filterChain){
+        return customerDetailsService.updateCurrentCustomerDetails(customerDetailsRequest,request,response,filterChain);
+    }
+
+
 
 
 }

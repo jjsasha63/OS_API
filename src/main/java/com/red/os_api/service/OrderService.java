@@ -1,5 +1,6 @@
 package com.red.os_api.service;
 
+import com.red.os_api.encryption.AES;
 import com.red.os_api.entity.*;
 import com.red.os_api.entity.req_resp.OrderRequest;
 import com.red.os_api.entity.req_resp.OrderResponse;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class OrderService {
+
+    @Value("${cid.order.key}")
+    private final String KEY;
 
     private final AuthService authService;
 
@@ -66,23 +71,6 @@ public class OrderService {
         log.info("The order was inserted");
         return new ResponseEntity<>(convertToResponse(order),HttpStatus.OK);
     }
-
-
-
-//    public ResponseEntity<String> deleteOrderById(Integer id, @NonNull HttpServletRequest request,
-//                                                  @NonNull HttpServletResponse response,
-//                                                  @NonNull FilterChain filterChain){
-//        try{
-//            orderRepository.delete(orderRepository
-//                    .findByOrderIdAndAuth(id,authRepository
-//                            .findById(authService.getUserId(request,response,filterChain)).get()).get());
-//        } catch(Exception e){
-//            log.error(e.getMessage());
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//        log.info("The order was deleted, id - " + id);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
     public ResponseEntity<String> deleteOrderById(Integer id){
         try{
@@ -180,7 +168,7 @@ public class OrderService {
         order.setOrder_status(OrderStatus.NEW);
         order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
         order.setDelivery_status(DeliveryStatus.PROCESSING);
-        order.setDelivery_address(orderRequest.getDelivery_address());
+        order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(),KEY));
         order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
         order.setComment(orderRequest.getComment());
         return order;
@@ -198,12 +186,12 @@ public class OrderService {
         else order.setOrder_status(orderRepository.findById(id).get().getOrder_status());
         order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
         order.setDelivery_status(orderRequest.getDelivery_status());
-        order.setDelivery_tracking_number(orderRequest.getDelivery_tracking_number());
+        order.setDelivery_tracking_number(AES.encrypt(orderRequest.getDelivery_tracking_number(),KEY));
         order.setDelivery_price(orderRequest.getDelivery_price());
-        order.setDelivery_address(orderRequest.getDelivery_address());
+        order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(),KEY));
         order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
-        order.setPayment_link(orderRequest.getPayment_link());
-        order.setPayment_reciept(orderRequest.getPayment_receipt());
+        order.setPayment_link(AES.encrypt(orderRequest.getPayment_link(),KEY));
+        order.setPayment_reciept(AES.encrypt(orderRequest.getPayment_receipt(),KEY));
         order.setOrder_price(orderRequest.getOrder_price());
         order.setComment(orderRequest.getComment());
         return order;
@@ -221,12 +209,12 @@ public class OrderService {
             order.setOrder_status(orderRequest.getOrder_status());
             order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
             order.setDelivery_status(orderRequest.getDelivery_status());
-            order.setDelivery_tracking_number(orderRequest.getDelivery_tracking_number());
+            order.setDelivery_tracking_number(AES.encrypt(orderRequest.getDelivery_tracking_number(),KEY));
             order.setDelivery_price(orderRequest.getDelivery_price());
-            order.setDelivery_address(orderRequest.getDelivery_address());
+            order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(),KEY));
             order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
-            order.setPayment_link(orderRequest.getPayment_link());
-            order.setPayment_reciept(orderRequest.getPayment_receipt());
+            order.setPayment_link(AES.encrypt(orderRequest.getPayment_link(),KEY));
+            order.setPayment_reciept(AES.encrypt(orderRequest.getPayment_receipt(),KEY));
             order.setOrder_price(orderRequest.getOrder_price());
             order.setComment(orderRequest.getComment());
             orders.add(order);
@@ -242,14 +230,14 @@ public class OrderService {
         orderResponse.setComment(order.getComment());
         orderResponse.setAuth_id(order.getAuth().getId());
         orderResponse.setOrder_date(order.getOrder_date());
-        orderResponse.setDelivery_address(order.getDelivery_address());
+        orderResponse.setDelivery_address(AES.decrypt(order.getDelivery_address(),KEY));
         orderResponse.setOrder_price(order.getOrder_price());
         orderResponse.setDeliveryStatus(order.getDelivery_status());
         orderResponse.setDelivery_price(order.getDelivery_price());
-        orderResponse.setPayment_link(order.getPayment_link());
+        orderResponse.setPayment_link(AES.decrypt(order.getPayment_link(),KEY));
         orderResponse.setDelivery_method_id(order.getDeliveryMethod().getDelivery_method_id());
-        orderResponse.setPayment_receipt(order.getPayment_reciept());
-        orderResponse.setDelivery_tracking_number(order.getDelivery_tracking_number());
+        orderResponse.setPayment_receipt(AES.decrypt(order.getPayment_reciept(),KEY));
+        orderResponse.setDelivery_tracking_number(AES.decrypt(order.getDelivery_tracking_number(),KEY));
         orderResponse.setPayment_method_id(order.getPaymentMethod().getPayment_method_id());
         return orderResponse;
     }
@@ -264,14 +252,14 @@ public class OrderService {
             orderResponse.setComment(order.getComment());
             orderResponse.setAuth_id(order.getAuth().getId());
             orderResponse.setOrder_date(order.getOrder_date());
-            orderResponse.setDelivery_address(order.getDelivery_address());
+            orderResponse.setDelivery_address(AES.decrypt(order.getDelivery_address(),KEY));
             orderResponse.setOrder_price(order.getOrder_price());
             orderResponse.setDeliveryStatus(order.getDelivery_status());
             orderResponse.setDelivery_price(order.getDelivery_price());
-            orderResponse.setPayment_link(order.getPayment_link());
+            orderResponse.setPayment_link(AES.decrypt(order.getPayment_link(),KEY));
             orderResponse.setDelivery_method_id(order.getDeliveryMethod().getDelivery_method_id());
-            orderResponse.setPayment_receipt(order.getPayment_reciept());
-            orderResponse.setDelivery_tracking_number(order.getDelivery_tracking_number());
+            orderResponse.setPayment_receipt(AES.decrypt(order.getPayment_reciept(),KEY));
+            orderResponse.setDelivery_tracking_number(AES.decrypt(order.getDelivery_tracking_number(),KEY));
             orderResponse.setPayment_method_id(order.getPaymentMethod().getPayment_method_id());
             orderResponseList.add(orderResponse);
         }

@@ -23,15 +23,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+  @Value("${cid.auth.key}")
+  private final String SECRET;
+
   private final AuthRepository authRepository;
   private final TokenRepository tokenRepository;
   private final PasswordEncoder encoder;
@@ -44,10 +53,14 @@ public class AuthService {
 
   private static String PHRASE;
 
-  public AuthResponse auth(AuthRequest authRequest) {
-    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
-    authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+  public AuthResponse auth(AuthRequest authRequest) throws AccessDeniedException {
+    if(authRepository.findByEmail(authRequest.getEmail()).get().getRole()==Role.MASTER){
+      KEY=null;
+      PHRASE=null;
+      throw new AccessDeniedException("Access denied");
+    }
     var user = authRepository.findByEmail(authRequest.getEmail()).orElseThrow();
+    authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword(),user.getAuthorities()));
     var jwtToken = jwtService.generateToken(user);
     revokeTokens(user);
     saveToken(user, jwtToken);
@@ -56,23 +69,29 @@ public class AuthService {
 
   public AuthResponse authMaster(AuthRequest authRequest) {
     String dec = AES.decrypt(authRequest.getToken(),KEY);
-    if(PHRASE.equals(dec)) {
+    if(PHRASE.equals(dec)&&authRepository.existsByIdAndRoleIs(
+            authRepository.findByEmail(
+                    authRequest.getEmail()).get().getId(),Role.MASTER)) {
       KEY = null;
       PHRASE =null;
-      authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
       var user = authRepository.findByEmail(authRequest.getEmail()).orElseThrow();
+      authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword(),user.getAuthorities()));
       var jwtToken = jwtService.generateToken(user);
       revokeTokens(user);
       saveToken(user, jwtToken);
       return AuthResponse.builder().token(jwtToken).build();
-    } else throw new RuntimeException();
+    } else{
+      KEY = null;
+      PHRASE =null;
+      throw new RuntimeException();
+    }
   }
 
 
   public AuthResponse register(RegisterRequest registerRequest) {
     var auth = Auth.builder().email(registerRequest.getEmail())
-        .first_name(registerRequest.getFirst_name())
-        .last_name(registerRequest.getLast_name())
+        .first_name(AES.encrypt(registerRequest.getFirst_name(),SECRET))
+        .last_name(AES.encrypt(registerRequest.getLast_name(),SECRET))
         .password(encoder.encode(registerRequest.getPassword()))
         .role(Role.CUSTOMER)
         .build();
@@ -84,8 +103,8 @@ public class AuthService {
 
   public AuthResponse registerAdmin(RegisterRequest registerRequest) {
     var auth = Auth.builder().email(registerRequest.getEmail())
-            .first_name(registerRequest.getFirst_name())
-            .last_name(registerRequest.getLast_name())
+            .first_name(AES.encrypt(registerRequest.getFirst_name(),SECRET))
+            .last_name(AES.encrypt(registerRequest.getLast_name(),SECRET))
             .password(encoder.encode(registerRequest.getPassword()))
             .role(Role.ADMIN)
             .build();
