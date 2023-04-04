@@ -49,9 +49,6 @@ public class CustomerDetailsService {
     @Autowired
     private final PaymentMethodRepository paymentMethodRepository;
 
-    private final JwtService jwtService;
-
-    private final TokenRepository tokenRepository;
 
 
 
@@ -129,19 +126,10 @@ public class CustomerDetailsService {
 
     public ResponseEntity<CustomerDetailsResponse> getCurrentUserDetails(@NonNull HttpServletRequest request,
                                                                  @NonNull HttpServletResponse response,
-                                                                 @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(authHeader
-                .substring(7),false,false)) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                                                                 @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
         return new ResponseEntity<>(convertToResponse(customerDetailsRepository
                 .findCustomerDetailsByAuth(authRepository
-                        .findByEmail(jwtService
-                                .getUsername(authHeader
-                                        .substring(7)))
+                        .findById(authService.getUserId(request,response,filterChain))
                         .get())
                 .get()),HttpStatus.OK);
     }
@@ -160,8 +148,12 @@ public class CustomerDetailsService {
 
     private CustomerDetails convertToEntity(CustomerDetailsRequest customerDetailsRequest) throws NoSuchFieldException {
         CustomerDetails customerDetails = new CustomerDetails();
-        if (customerDetailsRequest.getAuth_id() != null
-                && isUserAccountExist(customerDetailsRequest.getAuth_id())) {
+
+        if(customerDetailsRequest.getCustomer_id() != null&&customerDetailsRepository.existsById(customerDetailsRequest.getCustomer_id())){
+            customerDetails = customerDetailsRepository.findById(customerDetailsRequest.getCustomer_id()).get();
+            if (customerDetailsRequest.getAuth_id() != null
+                    && isUserAccountExist(customerDetailsRequest.getAuth_id()))
+            customerDetails.setAuth(authRepository.findById(customerDetailsRequest.getAuth_id()).get());
 
             if (customerDetailsRequest.getPreferred_payment_method() != null
                     && !isPaymentMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
@@ -169,6 +161,35 @@ public class CustomerDetailsService {
             if (customerDetailsRequest.getPreferred_delivery_method() != null
                     && !isDeliveryMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
                 throw new NoSuchFieldException();
+
+            if (customerDetailsRequest.getPreferred_payment_method() != null
+                    && !isPaymentMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
+                throw new NoSuchFieldException();
+            if (customerDetailsRequest.getPreferred_delivery_method() != null
+                    && !isDeliveryMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
+                throw new NoSuchFieldException();
+            if (customerDetailsRequest.getShipping_address() != null)
+                customerDetails.setShipping_address(AES.encrypt(customerDetailsRequest.getShipping_address(),KEY));
+            if (customerDetailsRequest.getBilling_address() != null)
+                customerDetails.setBilling_address(AES.encrypt(customerDetailsRequest.getBilling_address(),KEY));
+            if (customerDetailsRequest.getPreferred_payment_method() != null)
+                customerDetails.setPreferred_payment_method(paymentMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_payment_method()));
+            if (customerDetailsRequest.getPreferred_delivery_method() != null)
+                customerDetails.setPreferred_delivery_method(deliveryMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_delivery_method()));
+            if(customerDetailsRequest.getCard_number()!=null)
+            customerDetails.setCard_number(AES.encrypt(customerDetailsRequest.getCard_number().toString(),KEY));
+        }
+        else{
+        if (customerDetailsRequest.getPreferred_payment_method() != null
+                && !isPaymentMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
+            throw new NoSuchFieldException();
+        if (customerDetailsRequest.getPreferred_delivery_method() != null
+                && !isDeliveryMethodExist(customerDetailsRequest.getPreferred_delivery_method()))
+            throw new NoSuchFieldException();
+
+
+        if (customerDetailsRequest.getAuth_id() != null
+                && isUserAccountExist(customerDetailsRequest.getAuth_id())) {
             if (customerDetailsRequest.getCustomer_id()!=null) customerDetails.setCustomer_id(customerDetailsRequest.getCustomer_id()   );
             customerDetails.setAuth(authRepository.findById(customerDetailsRequest.getAuth_id()).get());
             if (customerDetailsRequest.getShipping_address() != null)
@@ -180,7 +201,7 @@ public class CustomerDetailsService {
             if (customerDetailsRequest.getPreferred_delivery_method() != null)
                 customerDetails.setPreferred_delivery_method(deliveryMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_delivery_method()));
            customerDetails.setCard_number(AES.encrypt(customerDetailsRequest.getCard_number().toString(),KEY));
-        }
+        }}
 
         return customerDetails;
 

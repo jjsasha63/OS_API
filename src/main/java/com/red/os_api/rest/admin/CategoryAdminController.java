@@ -41,15 +41,18 @@ public class CategoryAdminController {
     }
 
     @PostMapping("/deleteById")
-    public ResponseEntity<String> deleteCategory(@Nullable @RequestParam(name = "id") Integer id, @Nullable @RequestParam(name = "name") String name){
-        if(id != null) return categoryService.deleteCategoryById(id);
-        else return categoryService.deleteCategoryByName(name);
+    public ResponseEntity<String> deleteCategory( @RequestParam(name = "id") Integer id){
+        return categoryService.deleteCategoryById(id);
     }
 
-//    @PostMapping("/deleteByName")
-//    public ResponseEntity<String> deleteCategoryByName(@RequestParam(name = "name") String name){
-//        return categoryService.deleteCategoryByName(name);
-//    }
+    @GetMapping("/getById")
+    public ResponseEntity<Category> getCategoryById(@RequestParam(name = "id") Integer id) {
+        return categoryService.getCategoryById(id);
+    }
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Category>> getCategories(){
+        return categoryService.getAll();
+    }
 
     @PutMapping("/update-one")
     public  ResponseEntity<Category> updateCategory(@RequestBody Category category){

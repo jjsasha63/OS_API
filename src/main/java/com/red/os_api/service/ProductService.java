@@ -1,6 +1,7 @@
 package com.red.os_api.service;
 
 import com.red.os_api.entity.Product;
+import com.red.os_api.entity.req_resp.ProductResponseRequest;
 import com.red.os_api.entity.search.ProductPage;
 import com.red.os_api.entity.search.ProductSearchCriteria;
 import com.red.os_api.repository.CategoryRepository;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,35 +37,34 @@ public class ProductService {
         return productCriteriaRepository.findByFilters(productPage,productSearchCriteria);
     }
 
-    public ResponseEntity<Product> insertProduct(Product product){
-        checkCategory(product.getCategory_name());
-        product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
+    public ResponseEntity<ProductResponseRequest> insertProduct(ProductResponseRequest productResponseRequest){
+        Product product = new Product();
         try{
+            product = fromResponse(productResponseRequest);
             productRepository.save(product);
         }catch (IllegalArgumentException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.info("Product was successfully saved");
-        return new ResponseEntity<>(product,HttpStatus.OK);
+        return new ResponseEntity<>(toResponse(product),HttpStatus.OK);
     }
 
-    public ResponseEntity<List<Product>> insertProduct(List<Product> products){
+    public ResponseEntity<List<ProductResponseRequest>> insertProduct(List<ProductResponseRequest> productResponseRequestList){
+        List<Product> products = new ArrayList<>();
         try{
-            for(Product product: products) {
-                checkCategory(product.getCategory_name());
-                product.setCategory(categoryRepository.findCategoryByName(product.getCategory_name()));
-                productRepository.save(product);
-            }
+            products = fromResponse(productResponseRequestList);
+            productRepository.saveAll(products);
+
         }catch (IllegalArgumentException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.info("Products were successfully saved");
-        return new ResponseEntity<>(products,HttpStatus.OK);
+        return new ResponseEntity<>(toResponse(products),HttpStatus.OK);
     }
 
-   public ResponseEntity<Product> getProductById(int id){
+   public ResponseEntity<ProductResponseRequest> getProductById(int id){
        Product product = new Product();
        try{
            product = productRepository.findById(id).get();
@@ -71,11 +72,11 @@ public class ProductService {
            log.error(e.getMessage());
        }
        log.info("Product was successfully retrieved");
-       return new ResponseEntity<>(product,HttpStatus.OK);
+       return new ResponseEntity<>(toResponse(product),HttpStatus.OK);
    }
 
-   public ResponseEntity<List<Product>> getAll(){
-        return new ResponseEntity<>(productRepository.findAll(),HttpStatus.OK);
+   public ResponseEntity<List<ProductResponseRequest>> getAll(){
+        return new ResponseEntity<>(toResponse(productRepository.findAll()),HttpStatus.OK);
   }
 
    public ResponseEntity<String> deleteCategoryById(int id){
@@ -99,4 +100,87 @@ public class ProductService {
    private boolean verifyProductId(Integer id){
         return productRepository.existsById(id);
    }
+
+   private Product fromResponse(ProductResponseRequest productResponseRequest){
+       Product product = new Product();
+        if(productResponseRequest.getProduct_id()!=null&&productRepository.existsById(productResponseRequest.getProduct_id())){
+            product = productRepository.findById(productResponseRequest.getProduct_id()).get();
+            if(productResponseRequest.getCategory_id()!=null) {
+                checkCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get().getName());
+                product.setCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get());
+            }
+            if(productResponseRequest.getProduct_name()!=null) product.setProduct_name(productResponseRequest.getProduct_name());
+            if(productResponseRequest.getPrice()!=null) product.setPrice(productResponseRequest.getPrice());
+            if(productResponseRequest.getDescription()!=null) product.setDescription(productResponseRequest.getDescription());
+            if(productResponseRequest.getPicture()!=null) product.setPicture(productResponseRequest.getPicture());
+            if(productResponseRequest.getQuantity()!=null) product.setQuantity(productResponseRequest.getQuantity());
+        } else {
+            checkCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get().getName());
+            product.setCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get());
+            product.setProduct_name(productResponseRequest.getProduct_name());
+            product.setPrice(productResponseRequest.getPrice());
+            product.setDescription(productResponseRequest.getDescription());
+            product.setPicture(productResponseRequest.getPicture());
+            product.setQuantity(productResponseRequest.getQuantity());
+        }
+       return product;
+   }
+
+    private List<Product> fromResponse(List<ProductResponseRequest> productResponseRequestList){
+        List<Product> productList = new ArrayList<>();
+        for (ProductResponseRequest productResponseRequest:productResponseRequestList) {
+            Product product = new Product();
+            if(productResponseRequest.getProduct_id()!=null&&productRepository.existsById(productResponseRequest.getProduct_id())){
+                product = productRepository.findById(productResponseRequest.getProduct_id()).get();
+                if(productResponseRequest.getCategory_id()!=null) {
+                    checkCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get().getName());
+                    product.setCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get());
+                }
+                if(productResponseRequest.getProduct_name()!=null) product.setProduct_name(productResponseRequest.getProduct_name());
+                if(productResponseRequest.getPrice()!=null) product.setPrice(productResponseRequest.getPrice());
+                if(productResponseRequest.getDescription()!=null) product.setDescription(productResponseRequest.getDescription());
+                if(productResponseRequest.getPicture()!=null) product.setPicture(productResponseRequest.getPicture());
+                if(productResponseRequest.getQuantity()!=null) product.setQuantity(productResponseRequest.getQuantity());
+            } else {
+                checkCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get().getName());
+                product.setCategory(categoryRepository.findById(productResponseRequest.getCategory_id()).get());
+                product.setProduct_name(productResponseRequest.getProduct_name());
+                product.setPrice(productResponseRequest.getPrice());
+                product.setDescription(productResponseRequest.getDescription());
+                product.setPicture(productResponseRequest.getPicture());
+                product.setQuantity(productResponseRequest.getQuantity());
+            }
+            productList.add(product);
+        }
+        return productList;
+    }
+
+    private ProductResponseRequest toResponse(Product product){
+        ProductResponseRequest productResponseRequest = new ProductResponseRequest();
+        productResponseRequest.setProduct_id(product.getProduct_id());
+        productResponseRequest.setProduct_name(product.getProduct_name());
+        productResponseRequest.setPrice(product.getPrice());
+        productResponseRequest.setDescription(product.getDescription());
+        productResponseRequest.setPicture(product.getPicture());
+        productResponseRequest.setQuantity(product.getQuantity());
+        productResponseRequest.setCategory_id(product.getCategory().getCategory_id());
+        return productResponseRequest;
+    }
+
+    private List<ProductResponseRequest> toResponse(List<Product> productList){
+        List<ProductResponseRequest> productResponseRequestList = new ArrayList<>();
+        for (Product product: productList) {
+            ProductResponseRequest productResponseRequest = new ProductResponseRequest();
+            productResponseRequest.setProduct_id(product.getProduct_id());
+            productResponseRequest.setProduct_name(product.getProduct_name());
+            productResponseRequest.setPrice(product.getPrice());
+            productResponseRequest.setDescription(product.getDescription());
+            productResponseRequest.setPicture(product.getPicture());
+            productResponseRequest.setQuantity(product.getQuantity());
+            productResponseRequest.setCategory_id(product.getCategory().getCategory_id());
+            productResponseRequestList.add(productResponseRequest);
+        }
+        return productResponseRequestList;
+    }
+
 }

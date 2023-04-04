@@ -21,7 +21,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native",strategy = "native")
-    int product_id;
+    Integer product_id;
 
     @Column(name = "product_name",nullable = false,length = 255)
     String product_name;

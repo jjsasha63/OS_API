@@ -4,6 +4,9 @@ import com.red.os_api.entity.Category;
 import com.red.os_api.entity.DeliveryMethod;
 import com.red.os_api.entity.PaymentMethod;
 import com.red.os_api.entity.Product;
+import com.red.os_api.entity.req_resp.DeliveryMethodResponse;
+import com.red.os_api.entity.req_resp.PaymentMethodResponse;
+import com.red.os_api.entity.req_resp.ProductResponseRequest;
 import com.red.os_api.entity.search.CategoryPage;
 import com.red.os_api.entity.search.CategorySearchCriteria;
 import com.red.os_api.entity.search.ProductPage;
@@ -41,12 +44,12 @@ public class SearchController {
     }
 
     @GetMapping("/getProductById")
-    public ResponseEntity<Product> getProductById(@RequestParam(name = "id") Integer id){
+    public ResponseEntity<ProductResponseRequest> getProductById(@RequestParam(name = "id") Integer id){
         return productService.getProductById(id);
     }
 
     @GetMapping("/getProducts")
-    public ResponseEntity<List<Product>> getProducts(){
+    public ResponseEntity<List<ProductResponseRequest>> getProducts(){
         return productService.getAll();
     }
 
@@ -66,33 +69,33 @@ public class SearchController {
     }
 
     @GetMapping("/getPaymentMethodById")
-    public ResponseEntity<PaymentMethod> getPaymentMethodById(@RequestParam Integer id){
+    public ResponseEntity<PaymentMethodResponse> getPaymentMethodById(@RequestParam Integer id){
         return methodsService.getPaymentMethodById(id);
     }
 
     @GetMapping("/getPaymentMethodByName")
-    public ResponseEntity<PaymentMethod> getPaymentMethodByName(@RequestParam String name){
+    public ResponseEntity<PaymentMethodResponse> getPaymentMethodByName(@RequestParam String name){
         return methodsService.getPaymentMethodByName(name);
     }
 
     @GetMapping("/getPaymentMethods")
-    public ResponseEntity<List<PaymentMethod>> getPaymentMethods(){
+    public ResponseEntity<List<PaymentMethodResponse>> getPaymentMethods(){
         return methodsService.getAllPaymentMethods();
     }
 
 
     @GetMapping("/getDeliveryMethodById")
-    public ResponseEntity<DeliveryMethod> getDeliveryMethodById(@RequestParam Integer id){
+    public ResponseEntity<DeliveryMethodResponse> getDeliveryMethodById(@RequestParam Integer id){
         return methodsService.getDeliveryMethodById(id);
     }
 
     @GetMapping("/getDeliveryMethodByName")
-    public ResponseEntity<DeliveryMethod> getDeliveryMethodByName(@RequestParam String name){
+    public ResponseEntity<DeliveryMethodResponse> getDeliveryMethodByName(@RequestParam String name){
         return methodsService.getDeliveryMethodByName(name);
     }
 
     @GetMapping("/getDeliveryMethods")
-    public ResponseEntity<List<DeliveryMethod>> getDeliveryMethods(){
+    public ResponseEntity<List<DeliveryMethodResponse>> getDeliveryMethods(){
         return methodsService.getAllDeliveryMethods();
     }
 

@@ -3,6 +3,8 @@ package com.red.os_api.rest.admin;
 import com.red.os_api.entity.DeliveryMethod;
 import com.red.os_api.entity.PaymentMethod;
 import com.red.os_api.entity.Product;
+import com.red.os_api.entity.req_resp.DeliveryMethodResponse;
+import com.red.os_api.entity.req_resp.PaymentMethodResponse;
 import com.red.os_api.service.MethodsService;
 import com.red.os_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,18 @@ public class MethodsAdminController {
 
 
     @PostMapping("/paymentMethod/insert-one")
-    public ResponseEntity<PaymentMethod> putPaymentMethod(@RequestBody PaymentMethod paymentMethod){
+    public ResponseEntity<PaymentMethodResponse> putPaymentMethod(@RequestBody PaymentMethodResponse paymentMethod){
         return methodsService.insertPaymentMethod(paymentMethod);
     }
 
+    @GetMapping("/paymentMethod/getAll")
+    public ResponseEntity<List<PaymentMethodResponse>> getPaymentMethods(){
+        return methodsService.getAllPaymentMethods();
+    }
+
     @PostMapping("/paymentMethod/insert-many")
-    public ResponseEntity<List<PaymentMethod>> putPaymentMethods(@RequestBody PaymentMethod paymentMethods){
-        return methodsService.insertPaymentMethod(paymentMethods.getPaymentMethods());
+    public ResponseEntity<List<PaymentMethodResponse>> putPaymentMethods(@RequestBody PaymentMethodResponse paymentMethods){
+        return methodsService.insertPaymentMethod(paymentMethods.getPaymentMethodResponseList());
     }
 
     @PostMapping("/paymentMethod/deleteById")
@@ -37,24 +44,24 @@ public class MethodsAdminController {
     }
 
     @PutMapping("/paymentMethod/update-one")
-    public  ResponseEntity<PaymentMethod> updatePaymentMethod(@RequestBody PaymentMethod paymentMethod){
+    public  ResponseEntity<PaymentMethodResponse> updatePaymentMethod(@RequestBody PaymentMethodResponse paymentMethod){
        return methodsService.insertPaymentMethod(paymentMethod);
     }
 
     @PutMapping("/paymentMethod/update-many")
-    public  ResponseEntity<List<PaymentMethod>> updatePaymentMethods(@RequestBody PaymentMethod paymentMethods){
-        return methodsService.insertPaymentMethod(paymentMethods.getPaymentMethods());
+    public  ResponseEntity<List<PaymentMethodResponse>> updatePaymentMethods(@RequestBody PaymentMethodResponse paymentMethods){
+        return methodsService.insertPaymentMethod(paymentMethods.getPaymentMethodResponseList());
     }
 
 
     @PostMapping("/deliveryMethod/insert-one")
-    public ResponseEntity<DeliveryMethod> putDeliveryMethod(@RequestBody DeliveryMethod deliveryMethod){
+    public ResponseEntity<DeliveryMethodResponse> putDeliveryMethod(@RequestBody DeliveryMethodResponse deliveryMethod){
         return methodsService.insertDeliveryMethod(deliveryMethod);
     }
 
     @PostMapping("/deliveryMethod/insert-many")
-    public ResponseEntity<List<DeliveryMethod>> putDeliveryMethods(@RequestBody DeliveryMethod deliveryMethod){
-        return methodsService.insertDeliveryMethod(deliveryMethod.getDeliveryMethods());
+    public ResponseEntity<List<DeliveryMethodResponse>> putDeliveryMethods(@RequestBody DeliveryMethodResponse deliveryMethod){
+        return methodsService.insertDeliveryMethod(deliveryMethod.getDeliveryMethodResponseList());
     }
 
     @PostMapping("/deliveryMethod/deleteById")
@@ -63,13 +70,18 @@ public class MethodsAdminController {
     }
 
     @PutMapping("/deliveryMethod/update-one")
-    public  ResponseEntity<DeliveryMethod> updateDeliveryMethod(@RequestBody DeliveryMethod deliveryMethod){
+    public  ResponseEntity<DeliveryMethodResponse> updateDeliveryMethod(@RequestBody DeliveryMethodResponse deliveryMethod){
         return methodsService.insertDeliveryMethod(deliveryMethod);
     }
 
     @PutMapping("deliveryMethod/update-many")
-    public  ResponseEntity<List<DeliveryMethod>> updateDeliveryMethods(@RequestBody DeliveryMethod deliveryMethod){
-        return methodsService.insertDeliveryMethod(deliveryMethod.getDeliveryMethods());
+    public  ResponseEntity<List<DeliveryMethodResponse>> updateDeliveryMethods(@RequestBody DeliveryMethodResponse deliveryMethod){
+        return methodsService.insertDeliveryMethod(deliveryMethod.getDeliveryMethodResponseList());
+    }
+
+    @GetMapping("deliveryMethod/getAll")
+    public ResponseEntity<List<DeliveryMethodResponse>> getDeliveryMethods(){
+        return methodsService.getAllDeliveryMethods();
     }
 
 }

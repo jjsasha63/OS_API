@@ -34,7 +34,6 @@ public class DeliveryMethod {
 
     @OneToMany(mappedBy = "deliveryMethod")
     private List<Order> orders;
-    @Transient
-    List<DeliveryMethod> deliveryMethods;
+
 
 }

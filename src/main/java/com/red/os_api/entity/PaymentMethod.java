@@ -34,8 +34,6 @@ public class PaymentMethod {
     @OneToMany(mappedBy = "paymentMethod")
     private List<Order> orders;
 
-    @Transient
-    List<PaymentMethod> paymentMethods;
 
 
 

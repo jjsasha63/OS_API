@@ -31,7 +31,7 @@ public class CustomerController {
     @GetMapping("/getDetails")
     public ResponseEntity<CustomerDetailsResponse> getMyDetails(@NonNull HttpServletRequest request,
                                                                 @NonNull HttpServletResponse response,
-                                                                @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                                                @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
         return customerDetailsService.getCurrentUserDetails(request,response,filterChain);
     }
 
