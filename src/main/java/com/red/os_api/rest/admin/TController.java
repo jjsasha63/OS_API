@@ -24,7 +24,7 @@ public class TController {
     private final AuthService authService;
 
 
-    @GetMapping("/38782F413F442847")
+    @PostMapping("/38782F413F442847")
     public ResponseEntity<AuthResponse> requestToken(@RequestBody AuthRequest authRequest) {
         return ResponseEntity.ok(authService.generateEncrypted(authRequest));
     }

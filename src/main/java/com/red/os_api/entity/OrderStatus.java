@@ -8,6 +8,8 @@ public enum OrderStatus {
     IN_PROGRESS,
     COMPLETED,
     CLOSED,
-    CANCELED
+    CANCELED;
+
+
 
 }

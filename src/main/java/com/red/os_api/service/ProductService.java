@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,9 @@ public class ProductService {
     @Autowired
     private final CategoryRepository categoryRepository;
 
-    public Page<Product> getProducts(ProductPage productPage, ProductSearchCriteria productSearchCriteria){
-        return productCriteriaRepository.findByFilters(productPage,productSearchCriteria);
+    public Page<ProductResponseRequest> getProducts(ProductPage productPage, ProductSearchCriteria productSearchCriteria){
+        Page<Product> page = productCriteriaRepository.findByFilters(productPage,productSearchCriteria);
+        return toPageResponse(page);
     }
 
     public ResponseEntity<ProductResponseRequest> insertProduct(ProductResponseRequest productResponseRequest){
@@ -153,6 +155,23 @@ public class ProductService {
             productList.add(product);
         }
         return productList;
+    }
+
+    private Page<ProductResponseRequest> toPageResponse(Page<Product> products){
+       List<Product> productList =  products.getContent();
+       List<ProductResponseRequest> productResponseRequestList = new ArrayList<>();
+       for(Product product:productList){
+           ProductResponseRequest productResponseRequest = new ProductResponseRequest();
+           productResponseRequest.setProduct_id(product.getProduct_id());
+           productResponseRequest.setProduct_name(product.getProduct_name());
+           productResponseRequest.setPrice(product.getPrice());
+           productResponseRequest.setDescription(product.getDescription());
+           productResponseRequest.setPicture(product.getPicture());
+           productResponseRequest.setQuantity(product.getQuantity());
+           productResponseRequest.setCategory_id(product.getCategory().getCategory_id());
+           productResponseRequestList.add(productResponseRequest);
+       }
+        return new PageImpl<>(productResponseRequestList,products.getPageable(),products.getSize());
     }
 
     private ProductResponseRequest toResponse(Product product){

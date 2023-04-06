@@ -58,7 +58,7 @@ public class CustomerDetailsService {
         try {
             customerDetails = convertToEntity(customerDetailsRequest);
             customerDetailsRepository.save(customerDetails);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | NoSuchFieldException e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -116,7 +116,18 @@ public class CustomerDetailsService {
     public ResponseEntity<CustomerDetailsResponse> getById(Integer id){
         CustomerDetails customerDetails = new CustomerDetails();
         try {
-            customerDetails = customerDetailsRepository.getReferenceById(id);
+            customerDetails = customerDetailsRepository.findById(id).get();
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(convertToResponse(customerDetails),HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<CustomerDetailsResponse>> getByAuth(Integer auth){
+        List<CustomerDetails> customerDetails = new ArrayList<>();
+        try {
+            customerDetails = customerDetailsRepository.findCustomerDetailsByAuth(authRepository.findById(auth).get());
         } catch (Exception e){
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -128,10 +139,10 @@ public class CustomerDetailsService {
                                                                  @NonNull HttpServletResponse response,
                                                                  @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
         return new ResponseEntity<>(convertToResponse(customerDetailsRepository
-                .findCustomerDetailsByAuth(authRepository
+                .getCustomerDetailsByAuth(authRepository
                         .findById(authService.getUserId(request,response,filterChain))
                         .get())
-                .get()),HttpStatus.OK);
+        ),HttpStatus.OK);
     }
 
     private boolean isUserAccountExist(Integer id) {
@@ -190,18 +201,19 @@ public class CustomerDetailsService {
 
         if (customerDetailsRequest.getAuth_id() != null
                 && isUserAccountExist(customerDetailsRequest.getAuth_id())) {
-            if (customerDetailsRequest.getCustomer_id()!=null) customerDetails.setCustomer_id(customerDetailsRequest.getCustomer_id()   );
+            if (customerDetailsRequest.getCustomer_id()!=null)
+                customerDetails.setCustomer_id(customerDetailsRequest.getCustomer_id()   );
             customerDetails.setAuth(authRepository.findById(customerDetailsRequest.getAuth_id()).get());
             if (customerDetailsRequest.getShipping_address() != null)
                 customerDetails.setShipping_address(AES.encrypt(customerDetailsRequest.getShipping_address(),KEY));
             if (customerDetailsRequest.getBilling_address() != null)
                 customerDetails.setBilling_address(AES.encrypt(customerDetailsRequest.getBilling_address(),KEY));
-            if (customerDetailsRequest.getPreferred_payment_method() != null)
                 customerDetails.setPreferred_payment_method(paymentMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_payment_method()));
-            if (customerDetailsRequest.getPreferred_delivery_method() != null)
                 customerDetails.setPreferred_delivery_method(deliveryMethodRepository.getReferenceById(customerDetailsRequest.getPreferred_delivery_method()));
-           customerDetails.setCard_number(AES.encrypt(customerDetailsRequest.getCard_number().toString(),KEY));
-        }}
+            if(customerDetailsRequest.getCard_number()!=null)
+                customerDetails.setCard_number(AES.encrypt(customerDetailsRequest.getCard_number().toString(),KEY));
+        } else
+            throw new IllegalArgumentException();}
 
         return customerDetails;
 

@@ -51,7 +51,7 @@ public class OrderService {
         try{
             order = convertToEntity(orderRequest,request,response,filterChain);
             orderRepository.save(order);
-        } catch (Exception e){
+        } catch (IllegalArgumentException | ServletException | IOException | NoSuchFieldException e){
             log.error(e.getMessage());
             return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -64,7 +64,7 @@ public class OrderService {
         try{
             order = convertToEntity(orderRequest,auth, id);
             orderRepository.save(order);
-        } catch (Exception e){
+        } catch (IllegalArgumentException | ServletException | IOException | NoSuchFieldException e){
             log.error(e.getMessage());
             return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -177,23 +177,30 @@ public class OrderService {
 
     private Order convertToEntity(OrderRequest orderRequest, Integer auth, Integer id) throws ServletException, IOException, NoSuchFieldException {
         Order order = new Order();
-        if(id!=null)
-            order.setOrderId(id);
-        if(auth!=null) order.setAuth(authRepository.findById(auth).get());
-            else order.setAuth(orderRepository.findById(id).get().getAuth());
-        order.setOrder_date(LocalDateTime.now());
-        if(orderRequest.getOrder_status()==null&&auth!=null) order.setOrder_status(OrderStatus.NEW);
-        else order.setOrder_status(orderRepository.findById(id).get().getOrder_status());
-        order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
-        order.setDelivery_status(orderRequest.getDelivery_status());
-        order.setDelivery_tracking_number(AES.encrypt(orderRequest.getDelivery_tracking_number(),KEY));
-        order.setDelivery_price(orderRequest.getDelivery_price());
-        order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(),KEY));
-        order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
-        order.setPayment_link(AES.encrypt(orderRequest.getPayment_link(),KEY));
-        order.setPayment_reciept(AES.encrypt(orderRequest.getPayment_receipt(),KEY));
-        order.setOrder_price(orderRequest.getOrder_price());
-        order.setComment(orderRequest.getComment());
+        if(id!=null&&orderRepository.existsById(id)){
+            order = orderRepository.findById(id).get();
+            if(orderRequest.getDelivery_method_id()!=null) order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
+            if(orderRequest.getPayment_method_id()!=null) order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
+        }
+        else if(auth!=null&&authRepository.existsById(auth)) {
+            order.setAuth(authRepository.findById(auth).get());
+            order.setOrder_date(LocalDateTime.now());
+            if (orderRequest.getOrder_status() == null) order.setOrder_status(OrderStatus.NEW);
+            order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
+            order.setPaymentMethod(paymentMethodRepository.findById(orderRequest.getPayment_method_id()).get());
+        } else{
+            throw new IllegalArgumentException();}
+
+        if (orderRequest.getOrder_status() != null) order.setOrder_status(OrderStatus.valueOf(orderRequest.getOrder_status()));
+        if(orderRequest.getDelivery_status()!=null) order.setDelivery_status(DeliveryStatus.valueOf(orderRequest.getDelivery_status()));
+            if(orderRequest.getDelivery_tracking_number()!=null)order.setDelivery_tracking_number(AES.encrypt(orderRequest.getDelivery_tracking_number(), KEY));
+            if(orderRequest.getDelivery_price()!=null)order.setDelivery_price(orderRequest.getDelivery_price());
+            if(orderRequest.getDelivery_address()!=null)order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(), KEY));
+            if(orderRequest.getPayment_link()!=null)order.setPayment_link(AES.encrypt(orderRequest.getPayment_link(), KEY));
+            if(orderRequest.getPayment_receipt()!=null)order.setPayment_reciept(AES.encrypt(orderRequest.getPayment_receipt(), KEY));
+            if(orderRequest.getOrder_price()!=null)order.setOrder_price(orderRequest.getOrder_price());
+            if(orderRequest.getComment()!=null)order.setComment(orderRequest.getComment());
+
         return order;
     }
 
@@ -206,9 +213,9 @@ public class OrderService {
             Order order = new Order();
             order.setAuth(authRepository.findById(authService.getUserId(request, response, filterChain)).get());
             order.setOrder_date(LocalDateTime.now());
-            order.setOrder_status(orderRequest.getOrder_status());
+            order.setOrder_status(OrderStatus.valueOf(orderRequest.getOrder_status()));
             order.setDeliveryMethod(deliveryMethodRepository.findById(orderRequest.getDelivery_method_id()).get());
-            order.setDelivery_status(orderRequest.getDelivery_status());
+            order.setDelivery_status(DeliveryStatus.valueOf(orderRequest.getDelivery_status()));
             order.setDelivery_tracking_number(AES.encrypt(orderRequest.getDelivery_tracking_number(),KEY));
             order.setDelivery_price(orderRequest.getDelivery_price());
             order.setDelivery_address(AES.encrypt(orderRequest.getDelivery_address(),KEY));
@@ -239,6 +246,8 @@ public class OrderService {
         orderResponse.setPayment_receipt(AES.decrypt(order.getPayment_reciept(),KEY));
         orderResponse.setDelivery_tracking_number(AES.decrypt(order.getDelivery_tracking_number(),KEY));
         orderResponse.setPayment_method_id(order.getPaymentMethod().getPayment_method_id());
+        orderResponse.setPayment_method(order.getPaymentMethod().getName());
+        orderResponse.setDelivery_method(order.getDeliveryMethod().getName());
         return orderResponse;
     }
 
@@ -261,6 +270,8 @@ public class OrderService {
             orderResponse.setPayment_receipt(AES.decrypt(order.getPayment_reciept(),KEY));
             orderResponse.setDelivery_tracking_number(AES.decrypt(order.getDelivery_tracking_number(),KEY));
             orderResponse.setPayment_method_id(order.getPaymentMethod().getPayment_method_id());
+            orderResponse.setPayment_method(order.getPaymentMethod().getName());
+            orderResponse.setDelivery_method(order.getDeliveryMethod().getName());
             orderResponseList.add(orderResponse);
         }
         return orderResponseList;

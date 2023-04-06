@@ -116,15 +116,30 @@ public class OrderProductService {
 
     private OrderProduct convertToEntity(OrderProductRequest orderProductRequest){
         OrderProduct orderProduct = new OrderProduct();
-        orderProduct.setProduct(productRepository.findById(orderProductRequest.getProduct_id()).get());
-        orderProduct.setOrder(orderRepository.findById(orderProductRequest.getOrder_id()).get());
-        orderProduct.setOrderProductKey(
-                new OrderProductKey(
-                        orderProductRequest.getOrder_id()
-                        ,orderProductRequest.getProduct_id()
-                ));
-        orderProduct.setQuantity(orderProductRequest.getQuantity());
-        orderProduct.setProduct_price(orderProductRequest.getProduct_price());
+
+        if(orderProductRequest.getOrder_id()==null||orderProductRequest.getProduct_id()==null) throw new IllegalArgumentException();
+
+        if(orderProductRepository.existsById(new OrderProductKey(
+                orderProductRequest.getOrder_id()
+                ,orderProductRequest.getProduct_id()
+        ))){
+            orderProduct = orderProductRepository.findById(new OrderProductKey(
+                    orderProductRequest.getOrder_id()
+                    ,orderProductRequest.getProduct_id()
+            )).get();
+        }
+        else {
+            orderProduct.setProduct(productRepository.findById(orderProductRequest.getProduct_id()).get());
+            orderProduct.setOrder(orderRepository.findById(orderProductRequest.getOrder_id()).get());
+            orderProduct.setOrderProductKey(
+                    new OrderProductKey(
+                            orderProductRequest.getOrder_id()
+                            ,orderProductRequest.getProduct_id()
+                    ));
+        }
+
+        if(orderProductRequest.getQuantity()!=null) orderProduct.setQuantity(orderProductRequest.getQuantity());
+        if(orderProductRequest.getProduct_price()!=null) orderProduct.setProduct_price(orderProductRequest.getProduct_price());
         return orderProduct;
     }
 
@@ -132,15 +147,29 @@ public class OrderProductService {
         List<OrderProduct> orderProductList = new ArrayList<>();
         for(OrderProductRequest orderProductRequest: orderProductRequestList) {
             OrderProduct orderProduct = new OrderProduct();
-            orderProduct.setProduct(productRepository.findById(orderProductRequest.getProduct_id()).get());
-            orderProduct.setOrder(orderRepository.findById(orderProductRequest.getOrder_id()).get());
-            orderProduct.setOrderProductKey(
-                    new OrderProductKey(
-                            orderProductRequest.getOrder_id()
-                            , orderProductRequest.getProduct_id()
-                    ));
-            orderProduct.setQuantity(orderProductRequest.getQuantity());
-            orderProduct.setProduct_price(orderProductRequest.getProduct_price());
+            if(orderProductRequest.getOrder_id()==null||orderProductRequest.getProduct_id()==null) throw new IllegalArgumentException();
+
+            if(orderProductRepository.existsById(new OrderProductKey(
+                    orderProductRequest.getOrder_id()
+                    ,orderProductRequest.getProduct_id()
+            ))){
+                orderProduct = orderProductRepository.findById(new OrderProductKey(
+                        orderProductRequest.getOrder_id()
+                        ,orderProductRequest.getProduct_id()
+                )).get();
+            }
+            else {
+                orderProduct.setProduct(productRepository.findById(orderProductRequest.getProduct_id()).get());
+                orderProduct.setOrder(orderRepository.findById(orderProductRequest.getOrder_id()).get());
+                orderProduct.setOrderProductKey(
+                        new OrderProductKey(
+                                orderProductRequest.getOrder_id()
+                                ,orderProductRequest.getProduct_id()
+                        ));
+            }
+
+            if(orderProductRequest.getQuantity()!=null) orderProduct.setQuantity(orderProductRequest.getQuantity());
+            if(orderProductRequest.getProduct_price()!=null) orderProduct.setProduct_price(orderProductRequest.getProduct_price());
             orderProductList.add(orderProduct);
         }
         return orderProductList;

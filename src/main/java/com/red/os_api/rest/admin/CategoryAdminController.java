@@ -4,6 +4,8 @@ import com.red.os_api.entity.Category;
 import com.red.os_api.entity.CustomerDetails;
 import com.red.os_api.entity.Product;
 import com.red.os_api.entity.Token;
+import com.red.os_api.entity.search.CategoryPage;
+import com.red.os_api.entity.search.CategorySearchCriteria;
 import com.red.os_api.service.CategoryService;
 import com.red.os_api.service.CustomerDetailsService;
 import jakarta.annotation.Nullable;
@@ -14,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +36,11 @@ public class CategoryAdminController {
     @PostMapping("/insert-one")
     public ResponseEntity<Category> putCategory(@RequestBody Category category){
         return categoryService.insertCategory(category);
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<Page<Category>> searchCategory(CategoryPage categoryPage, @RequestBody CategorySearchCriteria categorySearchCriteria){
+        return new ResponseEntity<>(categoryService.getCategories(categoryPage,categorySearchCriteria),HttpStatus.OK);
     }
 
     @PostMapping("/insert-many")

@@ -32,6 +32,15 @@ public class MethodsAdminController {
     public ResponseEntity<List<PaymentMethodResponse>> getPaymentMethods(){
         return methodsService.getAllPaymentMethods();
     }
+    @GetMapping("/paymentMethod/getById")
+    public ResponseEntity<PaymentMethodResponse> getPaymentMethodById(@RequestParam Integer id){
+        return methodsService.getPaymentMethodById(id);
+    }
+
+    @GetMapping("/paymentMethod/getByName")
+    public ResponseEntity<PaymentMethodResponse> getPaymentMethodByName(@RequestParam String name){
+        return methodsService.getPaymentMethodByName(name);
+    }
 
     @PostMapping("/paymentMethod/insert-many")
     public ResponseEntity<List<PaymentMethodResponse>> putPaymentMethods(@RequestBody PaymentMethodResponse paymentMethods){
@@ -74,14 +83,24 @@ public class MethodsAdminController {
         return methodsService.insertDeliveryMethod(deliveryMethod);
     }
 
-    @PutMapping("deliveryMethod/update-many")
+    @PutMapping("/deliveryMethod/update-many")
     public  ResponseEntity<List<DeliveryMethodResponse>> updateDeliveryMethods(@RequestBody DeliveryMethodResponse deliveryMethod){
         return methodsService.insertDeliveryMethod(deliveryMethod.getDeliveryMethodResponseList());
     }
 
-    @GetMapping("deliveryMethod/getAll")
+    @GetMapping("/deliveryMethod/getAll")
     public ResponseEntity<List<DeliveryMethodResponse>> getDeliveryMethods(){
         return methodsService.getAllDeliveryMethods();
+    }
+
+    @GetMapping("/deliveryMethod/getById")
+    public ResponseEntity<DeliveryMethodResponse> getDeliveryMethodById(@RequestParam Integer id){
+        return methodsService.getDeliveryMethodById(id);
+    }
+
+    @GetMapping("/deliveryMethod/getByName")
+    public ResponseEntity<DeliveryMethodResponse> getDeliveryMethodByName(@RequestParam String name){
+        return methodsService.getDeliveryMethodByName(name);
     }
 
 }

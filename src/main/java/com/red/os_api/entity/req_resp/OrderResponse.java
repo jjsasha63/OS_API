@@ -25,6 +25,8 @@ public class OrderResponse {
 
     Integer delivery_method_id;
 
+    String delivery_method;
+
     DeliveryStatus deliveryStatus;
 
     String delivery_tracking_number;
@@ -34,6 +36,8 @@ public class OrderResponse {
     String delivery_address;
 
     Integer payment_method_id;
+
+    String payment_method;
 
     String payment_link;
 

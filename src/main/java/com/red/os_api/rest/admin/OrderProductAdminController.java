@@ -19,13 +19,13 @@ public class OrderProductAdminController {
     private final OrderProductService orderProductService;
 
 
-    @PostMapping("/add-one")
+    @PostMapping("/insert-one")
     public ResponseEntity<OrderProductRequest> insertOrderProduct(@RequestBody OrderProductRequest orderProductRequest){
         return orderProductService.insert(orderProductRequest);
     }
 
 
-    @PostMapping("/add-many")
+    @PostMapping("/insert-many")
     public ResponseEntity<List<OrderProductRequest>> insertOrderProducts(@RequestBody OrderProductRequest orderProductRequest){
         return orderProductService.insert(orderProductRequest.getOrderProductList());
     }
@@ -41,9 +41,9 @@ public class OrderProductAdminController {
         return orderProductService.insert(orderProductRequest.getOrderProductList());
     }
 
-    @PostMapping("/deleteByOrderAndProduct")
-    public ResponseEntity<String> deleteById(@RequestParam Integer order, @RequestParam Integer product){
-        return orderProductService.deleteById(order,product);
+    @PostMapping("/deleteByIdAndProduct")
+    public ResponseEntity<String> deleteById(@RequestParam Integer id, @RequestParam Integer product){
+        return orderProductService.deleteById(id,product);
     }
 
     @GetMapping("/getAll")
@@ -51,15 +51,15 @@ public class OrderProductAdminController {
         return orderProductService.getAll();
     }
 
-    @GetMapping("/getByOrderAndProduct")
-    public ResponseEntity<OrderProductRequest> getByOrderAndProduct(@RequestParam Integer order
+    @GetMapping("/getByIdAndProduct")
+    public ResponseEntity<OrderProductRequest> getByIdAndProduct(@RequestParam Integer id
             ,@RequestParam Integer product){
-        return orderProductService.getByOrderAndProduct(order,product);
+        return orderProductService.getByOrderAndProduct(id,product);
     }
 
-    @GetMapping("/getByOrder")
-    public ResponseEntity<List<OrderProductRequest>> getByOrder(@RequestParam Integer order){
-        return orderProductService.getByOrder(order);
+    @GetMapping("/getById")
+    public ResponseEntity<List<OrderProductRequest>> getByOrder(@RequestParam Integer id){
+        return orderProductService.getByOrder(id);
     }
 
     @GetMapping("/getByProduct")

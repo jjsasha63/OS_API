@@ -11,10 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -40,12 +37,7 @@ public class AuthController {
     return ResponseEntity.ok(authService.authMaster(authRequest));
   }
 
-  @PostMapping("/logout")
-  public ResponseEntity<String> logout(@NonNull HttpServletRequest request,
-                                       @NonNull HttpServletResponse response,
-                                       @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
-    return authService.logout(request,response,filterChain);
-  }
+
 
 
 

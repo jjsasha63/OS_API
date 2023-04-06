@@ -43,7 +43,7 @@ public class OrderAdminController {
         return orderService.getByAuth(auth);
     }
 
-    @PostMapping("/add-one")
+    @PostMapping("/insert-one")
     public ResponseEntity<OrderResponse> insertOrder(@RequestBody OrderRequest orderRequest,@RequestParam Integer auth){
         return orderService.insertOrder(orderRequest,auth,null);
     }

@@ -37,8 +37,8 @@ public class SearchController {
     @Autowired
     private final MethodsService methodsService;
 
-    @GetMapping( "/filterProducts")
-    public ResponseEntity<Page<Product>> searchProducts( ProductPage productPage, @RequestBody ProductSearchCriteria productSearchCriteria){
+    @PostMapping( "/filterProducts")
+    public ResponseEntity<Page<ProductResponseRequest>> searchProducts( ProductPage productPage, @RequestBody ProductSearchCriteria productSearchCriteria){
         return  new ResponseEntity<>(productService.getProducts(productPage,productSearchCriteria), HttpStatus.OK);
 
     }
@@ -53,7 +53,7 @@ public class SearchController {
         return productService.getAll();
     }
 
-    @GetMapping("/filterCategories")
+    @PostMapping("/filterCategories")
     public ResponseEntity<Page<Category>> searchCategory(CategoryPage categoryPage, @RequestBody CategorySearchCriteria categorySearchCriteria){
         return new ResponseEntity<>(categoryService.getCategories(categoryPage,categorySearchCriteria),HttpStatus.OK);
     }

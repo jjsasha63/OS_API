@@ -2,7 +2,6 @@ package com.red.os_api.config;
 
 import com.red.os_api.repository.AuthRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +51,7 @@ public class AppConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> authRepository.findByEmail(username)
+    return username -> authRepository.findAuthByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("Username was not found"));
   }
 

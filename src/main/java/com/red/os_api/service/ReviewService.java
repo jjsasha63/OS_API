@@ -85,7 +85,7 @@ public class ReviewService {
     public ResponseEntity<ReviewResponse> getUserReviewById(Integer id){
         Review review = new Review();
         try {
-            review = reviewRepository.getReferenceById(id);
+            review = reviewRepository.findById(id).get();
         } catch (Exception e){
             log.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -215,8 +215,8 @@ public class ReviewService {
             reviewResponse.setProduct_id(review.getProduct().getProduct_id());
             reviewResponse.setReview_id(review.getReviewId());
             reviewResponse.setGrade(review.getGrade());
-            review.setReview_text(review.getReview_text());
-            review.setReview_date(review.getReview_date());
+            reviewResponse.setReview_text(review.getReview_text());
+            reviewResponse.setReview_date(review.getReview_date());
             reviewResponseList.add(reviewResponse);
         }
         return reviewResponseList;

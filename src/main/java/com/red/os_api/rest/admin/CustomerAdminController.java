@@ -55,6 +55,11 @@ public class CustomerAdminController {
         return customerDetailsService.getById(id);
     }
 
+    @GetMapping("/getByAuth")
+    public ResponseEntity<List<CustomerDetailsResponse>> getCustomerDetailsByAuth(@RequestParam Integer auth){
+        return customerDetailsService.getByAuth(auth);
+    }
+
     @GetMapping("/getAll")
     public ResponseEntity<List<CustomerDetailsResponse>> getAllCustomerDetails(){
         return customerDetailsService.getAllCustomerDetails();

@@ -1,11 +1,7 @@
 package com.red.os_api.rest;
 
-import com.red.os_api.entity.CustomerDetails;
-import com.red.os_api.entity.req_resp.CartRequest;
-import com.red.os_api.entity.req_resp.CartResponse;
-import com.red.os_api.entity.req_resp.CustomerDetailsRequest;
-import com.red.os_api.entity.req_resp.CustomerDetailsResponse;
-import com.red.os_api.service.CartService;
+import com.red.os_api.entity.req_resp.*;
+import com.red.os_api.service.AuthService;
 import com.red.os_api.service.CustomerDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +22,8 @@ public class CustomerController {
 
     @Autowired
     private final CustomerDetailsService customerDetailsService;
+
+    private final AuthService authService;
 
     @GetMapping("/getDetails")
     public ResponseEntity<CustomerDetailsResponse> getMyDetails(@NonNull HttpServletRequest request,
@@ -42,6 +39,13 @@ public class CustomerController {
         return customerDetailsService.updateCurrentCustomerDetails(customerDetailsRequest,request,response,filterChain);
     }
 
+
+    @PutMapping("/update-reg")
+    public ResponseEntity<AuthResponse> updateRegDetails(@RequestBody RegisterRequest registerRequest, @NonNull HttpServletRequest request,
+                                         @NonNull HttpServletResponse response,
+                                         @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+        return ResponseEntity.ok(authService.register(registerRequest,request,response,filterChain));
+    }
 
 
 

@@ -16,11 +16,11 @@ import java.math.BigInteger;
 @Builder
 public class OrderRequest {
 
-   OrderStatus order_status;
+String order_status;
 
    Integer delivery_method_id;
 
-   DeliveryStatus delivery_status;
+   String delivery_status;
 
    String delivery_tracking_number;
 

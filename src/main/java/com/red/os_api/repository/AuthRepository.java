@@ -10,9 +10,11 @@ import java.util.Optional;
 @Repository
 public interface AuthRepository extends JpaRepository<Auth, Integer> {
 
-  Optional<Auth> findByEmail(String email);
+  Optional<Auth> findAuthByEmail(String email);
 
   Boolean existsByIdAndRoleIs(Integer id, Role role);
+
+  Boolean existsByEmail(String email);
 
 
 

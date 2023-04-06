@@ -5,6 +5,7 @@ import com.red.os_api.encryption.AES;
 import com.red.os_api.entity.Auth;
 import com.red.os_api.entity.req_resp.AuthRequest;
 import com.red.os_api.entity.req_resp.AuthResponse;
+import com.red.os_api.entity.req_resp.MasterResponse;
 import com.red.os_api.entity.req_resp.RegisterRequest;
 import com.red.os_api.entity.Token;
 import com.red.os_api.repository.AuthRepository;
@@ -17,14 +18,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +32,10 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class AuthService {
 
   @Value("${cid.auth.key}")
@@ -54,32 +54,32 @@ public class AuthService {
   private static String PHRASE;
 
   public AuthResponse auth(AuthRequest authRequest) throws AccessDeniedException {
-    if(authRepository.findByEmail(authRequest.getEmail()).get().getRole()==Role.MASTER){
+    if(authRepository.findAuthByEmail(authRequest.getEmail()).get().getRole()==Role.MASTER){
       KEY=null;
       PHRASE=null;
       throw new AccessDeniedException("Access denied");
     }
-    var user = authRepository.findByEmail(authRequest.getEmail()).orElseThrow();
+    var user = authRepository.findAuthByEmail(authRequest.getEmail()).orElseThrow();
     authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword(),user.getAuthorities()));
     var jwtToken = jwtService.generateToken(user);
     revokeTokens(user);
     saveToken(user, jwtToken);
-    return AuthResponse.builder().token(jwtToken).build();
+    return AuthResponse.builder().token(jwtToken).role(user.getRole().name()).build();
   }
 
   public AuthResponse authMaster(AuthRequest authRequest) {
     String dec = AES.decrypt(authRequest.getToken(),KEY);
     if(PHRASE.equals(dec)&&authRepository.existsByIdAndRoleIs(
-            authRepository.findByEmail(
+            authRepository.findAuthByEmail(
                     authRequest.getEmail()).get().getId(),Role.MASTER)) {
       KEY = null;
       PHRASE =null;
-      var user = authRepository.findByEmail(authRequest.getEmail()).orElseThrow();
+      var user = authRepository.findAuthByEmail(authRequest.getEmail()).orElseThrow();
       authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword(),user.getAuthorities()));
       var jwtToken = jwtService.generateToken(user);
       revokeTokens(user);
       saveToken(user, jwtToken);
-      return AuthResponse.builder().token(jwtToken).build();
+      return AuthResponse.builder().token(jwtToken).role(user.getRole().name()).build();
     } else{
       KEY = null;
       PHRASE =null;
@@ -87,6 +87,74 @@ public class AuthService {
     }
   }
 
+  public ResponseEntity<MasterResponse> insert(RegisterRequest registerRequest) {
+    var auth = new Auth();
+    try {
+      if (registerRequest.getAuth_id() != null && authRepository.existsById(registerRequest.getAuth_id()))
+        auth = authRepository.findById(registerRequest.getAuth_id()).get();
+      if (registerRequest.getEmail() != null) auth.setEmail(registerRequest.getEmail());
+      if (registerRequest.getFirst_name() != null)
+        auth.setFirst_name(AES.encrypt(registerRequest.getFirst_name(), SECRET));
+      if (registerRequest.getLast_name() != null)
+        auth.setLast_name(AES.encrypt(registerRequest.getLast_name(), SECRET));
+      if (registerRequest.getPassword() != null) auth.setPassword(encoder.encode(registerRequest.getPassword()));
+      if (registerRequest.getRole() != null) auth.setRole(Role.valueOf(registerRequest.getRole()));
+      var saved = authRepository.save(auth);
+      var token = jwtService.generateToken(auth);
+      saveToken(saved, token);
+    } catch (Exception e){
+      log.error(e.getMessage());
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return new ResponseEntity<>(toResponse(auth),HttpStatus.OK);
+  }
+
+  private MasterResponse toResponse(Auth auth){
+    MasterResponse masterResponse = new MasterResponse();
+    masterResponse.setAuth_id(auth.getId());
+    masterResponse.setRole(auth.getRole().name());
+    masterResponse.setFirst_name(AES.decrypt(auth.getFirst_name(),SECRET));
+    masterResponse.setLast_name(AES.decrypt(auth.getLast_name(),SECRET));
+    masterResponse.setEmail(auth.getEmail());
+    return masterResponse;
+
+  }
+
+  private List<MasterResponse> toResponse(List<Auth> authList){
+    List<MasterResponse> masterResponseList = new ArrayList<>();
+    for(Auth auth:authList) {
+      MasterResponse masterResponse = new MasterResponse();
+      masterResponse.setAuth_id(auth.getId());
+      masterResponse.setRole(auth.getRole().name());
+      masterResponse.setFirst_name(AES.decrypt(auth.getFirst_name(),SECRET));
+      masterResponse.setLast_name(AES.decrypt(auth.getLast_name(),SECRET));
+      masterResponse.setEmail(auth.getEmail());
+      masterResponseList.add(masterResponse);
+    }
+    return masterResponseList;
+
+  }
+
+  public ResponseEntity<List<MasterResponse>> getAll(){
+    List<Auth> authList = new ArrayList<>();
+    try{
+      authList = authRepository.findAll();
+    }catch (Exception e){
+      log.error(e.getMessage());
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return new ResponseEntity<>(toResponse(authList),HttpStatus.OK);
+  }
+
+  public ResponseEntity<String> deleteById(Integer id){
+    try{
+      authRepository.deleteById(id);
+    }catch (Exception e){
+      log.error(e.getMessage());
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 
   public AuthResponse register(RegisterRequest registerRequest) {
     var auth = Auth.builder().email(registerRequest.getEmail())
@@ -95,6 +163,21 @@ public class AuthService {
         .password(encoder.encode(registerRequest.getPassword()))
         .role(Role.CUSTOMER)
         .build();
+    var saved = authRepository.save(auth);
+    var token = jwtService.generateToken(auth);
+    saveToken(saved, token);
+    return AuthResponse.builder().token(token).build();
+  }
+
+  public AuthResponse register(RegisterRequest registerRequest,@NonNull HttpServletRequest request,
+                               @NonNull HttpServletResponse response,
+                               @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+    var auth = Auth.builder().id(getUserId(request,response,filterChain)).email(registerRequest.getEmail())
+            .first_name(AES.encrypt(registerRequest.getFirst_name(),SECRET))
+            .last_name(AES.encrypt(registerRequest.getLast_name(),SECRET))
+            .password(encoder.encode(registerRequest.getPassword()))
+            .role(Role.CUSTOMER)
+            .build();
     var saved = authRepository.save(auth);
     var token = jwtService.generateToken(auth);
     saveToken(saved, token);
@@ -135,6 +218,7 @@ public class AuthService {
   public ResponseEntity<String> logout(@NonNull HttpServletRequest request,
                                        @NonNull HttpServletResponse response,
                                        @NonNull FilterChain filterChain) throws ServletException, IOException, NoSuchFieldException {
+    Integer id = getUserId(request,response,filterChain);
     Auth auth = authRepository.findById(getUserId(request,response,filterChain)).get();
     revokeTokens(auth);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -148,11 +232,12 @@ public class AuthService {
       filterChain.doFilter(request, response);
       throw new IllegalArgumentException();
     }
-    if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(authHeader
+    String temp = authHeader.replaceAll("Bearer \\{\"token\":\"(.*?)\"\\}", "Bearer $1");
+    if(!tokenRepository.existsTokenByTokenAndRevokedAndExpired(temp
             .substring(7),false,false)) throw new NoSuchFieldException();
 
-    return authRepository.findByEmail(jwtService
-            .getUsername(authHeader
+    return authRepository.findAuthByEmail(jwtService
+            .getUsername(temp
                     .substring(7))).get().getId();
   }
 
@@ -160,9 +245,9 @@ public class AuthService {
     if(authRequest.getToken().equals(T)) {
       PHRASE = RandomString.make(99);
       KEY = RandomString.make(512);
-      return new AuthResponse(AES.encrypt(PHRASE, KEY));
+      return new AuthResponse(AES.encrypt(PHRASE, KEY),"");
     }
-    return new AuthResponse("Invalid token");
+    return new AuthResponse("Invalid token","");
   }
 
 }
