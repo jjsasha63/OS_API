@@ -1,14 +1,12 @@
-create database if not exists online_store;
-
 create table auth
 (
     id         int auto_increment
         primary key,
-    email      varchar(50)  not null,
-    first_name varchar(50)  not null,
-    last_name  varchar(50)  not null,
-    password   varchar(100) not null,
-    role       varchar(256) not null,
+    email      varchar(50)    not null,
+    first_name varbinary(255) not null,
+    last_name  varbinary(255) not null,
+    password   varchar(100)   not null,
+    role       varchar(256)   not null,
     constraint email
         unique (email)
 );
@@ -28,77 +26,70 @@ create table category
         unique (name)
 );
 
-create table customer
-(
-    customer_id      int auto_increment
-        primary key,
-    shipping_address varchar(100) null,
-    billing_address  varchar(100) null,
-    constraint customer_ibfk_1
-        foreign key (customer_id) references auth (id)
-            on delete cascade
-);
-
 create table delivery_method
 (
-    delivery_id int auto_increment
+    delivery_method_id int auto_increment
         primary key,
-    method      varchar(255) not null,
-    description linestring   null
+    name               varchar(255) not null,
+    description        text         null
 );
 
-create table `order`
-(
-    order_id     int auto_increment
-        primary key,
-    customer_id  int         not null,
-    order_date   date        not null,
-    order_status varchar(50) not null,
-    constraint fk_customer_id
-        foreign key (customer_id) references customer (customer_id)
-);
-
-create table order_delivery
-(
-    order_id         int          not null,
-    delivery_id      int          not null,
-    delivered        tinyint(1)   not null,
-    tracking_number  varchar(255) null,
-    delivery_price   decimal      not null,
-    delivery_address linestring   not null,
-    primary key (order_id, delivery_id),
-    constraint order_delivery_delivery_method_delivery_id_fk
-        foreign key (delivery_id) references delivery_method (delivery_id),
-    constraint order_delivery_order_order_id_fk
-        foreign key (order_id) references `order` (order_id)
-);
-
-create table payment_methods
+create table payment_method
 (
     payment_method_id int auto_increment
         primary key,
-    name              varchar(50) not null,
-    description       text        null,
+    name              varchar(255) not null,
+    description       text         null,
     constraint name
         unique (name)
 );
 
-create table order_payment
+create table customer_details
 (
-    order_id          int          not null,
-    payment_method_id int          not null,
-    payment_link      varchar(255) not null,
-    primary key (order_id, payment_method_id),
-    constraint order_payment_ibfk_1
-        foreign key (order_id) references `order` (order_id)
-            on update cascade on delete cascade,
-    constraint order_payment_ibfk_2
-        foreign key (payment_method_id) references payment_methods (payment_method_id)
-            on update cascade on delete cascade
+    customer_id               int auto_increment
+        primary key,
+    shipping_address          varbinary(255) null,
+    billing_address           varbinary(255) null,
+    preferred_delivery_method int default 1  null,
+    preferred_payment_method  int default 1  null,
+    auth                      int            null,
+    card_number               varbinary(255) null,
+    constraint customer_details___fk
+        foreign key (preferred_payment_method) references payment_method (payment_method_id)
+            on delete set null,
+    constraint customer_details_auth_id_fk
+        foreign key (auth) references auth (id),
+    constraint customer_details_delivery_method_delivery_id_fk
+        foreign key (preferred_delivery_method) references delivery_method (delivery_method_id)
+            on delete set null
 );
 
-create index payment_method_id
-    on order_payment (payment_method_id);
+create table order_
+(
+    order_id                 int auto_increment
+        primary key,
+    auth_id                  int            not null,
+    order_date               date           not null,
+    order_status             varchar(50)    not null,
+    delivery_method_id       int            null,
+    delivery_status          varchar(100)   null,
+    delivery_tracking_number varchar(255)   null,
+    delivery_price           decimal(10, 2) null,
+    delivery_address         varchar(255)   not null,
+    payment_method_id        int            null,
+    payment_link             varchar(255)   null,
+    payment_reciept          varchar(255)   null,
+    order_price              decimal(10, 2) null,
+    comment                  text           null,
+    constraint fk_customer_id
+        foreign key (auth_id) references auth (id),
+    constraint order__delivery_method_delivery_method_id_fk
+        foreign key (delivery_method_id) references delivery_method (delivery_method_id)
+            on update cascade on delete set null,
+    constraint order__payment_method_payment_method_id_fk
+        foreign key (payment_method_id) references payment_method (payment_method_id)
+            on update cascade on delete set null
+);
 
 create table product
 (
@@ -120,12 +111,12 @@ create table product
 
 create table cart
 (
-    customer_id int not null,
-    product_id  int not null,
-    quantity    int not null,
-    primary key (customer_id, product_id),
+    auth_id    int not null,
+    product_id int not null,
+    quantity   int not null,
+    primary key (auth_id, product_id),
     constraint cart_ibfk_1
-        foreign key (customer_id) references customer (customer_id)
+        foreign key (auth_id) references auth (id)
             on update cascade on delete cascade,
     constraint cart_ibfk_2
         foreign key (product_id) references product (product_id)
@@ -137,12 +128,13 @@ create index product_id
 
 create table order_product
 (
-    order_id   int not null,
-    product_id int not null,
-    quantity   int not null,
+    order_id      int            not null,
+    product_id    int            not null,
+    quantity      int            not null,
+    product_price decimal(10, 2) not null,
     primary key (order_id, product_id),
     constraint fk_order_id
-        foreign key (order_id) references `order` (order_id),
+        foreign key (order_id) references order_ (order_id),
     constraint fk_product_id
         foreign key (product_id) references product (product_id),
     constraint chk_pr_quantity
@@ -165,21 +157,18 @@ create table review
 (
     review_id   int auto_increment
         primary key,
-    customer_id int                                          not null,
-    product_id  int                                          not null,
-    grade       enum ('One', 'Two', 'Three', 'Four', 'Five') not null,
-    review_text varchar(255)                                 null,
-    review_date date                                         not null,
+    auth_id     int          not null,
+    product_id  int          not null,
+    grade       varchar(50)  null,
+    review_text varchar(255) null,
+    review_date date         not null,
     constraint review_ibfk_1
-        foreign key (customer_id) references customer (customer_id)
+        foreign key (auth_id) references auth (id)
             on delete cascade,
     constraint review_ibfk_2
         foreign key (product_id) references product (product_id)
             on delete cascade
 );
-
-create index customer_id
-    on review (customer_id);
 
 create index product_id
     on review (product_id);
