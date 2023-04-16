@@ -184,7 +184,8 @@ public class AuthService {
     return AuthResponse.builder().token(token).build();
   }
 
-  public AuthResponse registerAdmin(RegisterRequest registerRequest) {
+  public AuthResponse registerAdmin(RegisterRequest registerRequest) throws AccessDeniedException {
+    if(registerRequest.getToken()!=null&&registerRequest.getToken().equals(T)){
     var auth = Auth.builder().email(registerRequest.getEmail())
             .first_name(AES.encrypt(registerRequest.getFirst_name(),SECRET))
             .last_name(AES.encrypt(registerRequest.getLast_name(),SECRET))
@@ -194,7 +195,8 @@ public class AuthService {
     var saved = authRepository.save(auth);
     var token = jwtService.generateToken(auth);
     saveToken(saved, token);
-    return AuthResponse.builder().token(token).build();
+    return AuthResponse.builder().token(token).role(Role.ADMIN.name()).build();
+    } else throw new AccessDeniedException("The token is invalid");
   }
 
   private void revokeTokens(Auth auth) {

