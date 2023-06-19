@@ -48,7 +48,10 @@ public class AuthService {
   private final AuthenticationManager authManager;
 
   @Value("${master.key}")
-  private final String T;
+  private final String ADM;
+
+  @Value("${master.key.su}")
+  private final String MST;
    private static String KEY;
 
   private static String PHRASE;
@@ -185,17 +188,19 @@ public class AuthService {
   }
 
   public AuthResponse registerAdmin(RegisterRequest registerRequest) throws AccessDeniedException {
-    if(registerRequest.getToken()!=null&&registerRequest.getToken().equals(T)){
+    if(registerRequest.getToken()!=null&&(registerRequest.getToken().equals(ADM)||registerRequest.getToken().equals(MST))){
+      Role role = Role.ADMIN;
+      if(registerRequest.getToken().equals(MST)) role = Role.MASTER;
     var auth = Auth.builder().email(registerRequest.getEmail())
             .first_name(AES.encrypt(registerRequest.getFirst_name(),SECRET))
             .last_name(AES.encrypt(registerRequest.getLast_name(),SECRET))
             .password(encoder.encode(registerRequest.getPassword()))
-            .role(Role.ADMIN)
+            .role(role)
             .build();
     var saved = authRepository.save(auth);
     var token = jwtService.generateToken(auth);
     saveToken(saved, token);
-    return AuthResponse.builder().token(token).role(Role.ADMIN.name()).build();
+    return AuthResponse.builder().token(token).role(role.name()).build();
     } else throw new AccessDeniedException("The token is invalid");
   }
 
@@ -244,7 +249,7 @@ public class AuthService {
   }
 
   public AuthResponse generateEncrypted(AuthRequest authRequest){
-    if(authRequest.getToken().equals(T)) {
+    if(authRequest.getToken().equals(ADM)) {
       PHRASE = RandomString.make(99);
       KEY = RandomString.make(512);
       return new AuthResponse(AES.encrypt(PHRASE, KEY),"");
